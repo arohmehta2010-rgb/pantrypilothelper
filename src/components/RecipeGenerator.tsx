@@ -15,6 +15,12 @@ const dietOptions = [
   "Halal", "Kosher", "Pescatarian", "Hindu (No Beef)", "Jain",
 ];
 
+const applianceOptions = [
+  "Any Appliance", "Oven", "Stovetop", "Air Fryer", "Microwave",
+  "Microwave Oven", "Instant Pot", "Slow Cooker", "Grill", "Toaster Oven",
+  "Blender", "No Cook",
+];
+
 const preferenceOptions = [
   "Quick & Easy", "Budget-Friendly", "Comfort Food", "Healthy",
   "Spicy", "Mild", "Kid-Friendly", "Meal Prep", "One-Pot", "Under 30 min",
@@ -50,6 +56,7 @@ interface RecipeGeneratorProps {
 
 const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
   const [diet, setDiet] = useState<string[]>([]);
+  const [appliances, setAppliances] = useState<string[]>([]);
   const [preferences, setPreferences] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState("");
   const [ingredientList, setIngredientList] = useState<string[]>([]);
@@ -147,6 +154,7 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
         body: {
           diet: diet.length > 0 ? diet : ["No Restrictions"],
           preferences,
+          appliances: appliances.length > 0 ? appliances : ["Any Appliance"],
           ingredients: ingredientList,
         },
       });
@@ -203,7 +211,30 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
                 {d}
               </button>
             ))}
+        </div>
+
+        {/* Appliances */}
+        <div className="space-y-3">
+          <label className="text-sm font-semibold text-foreground">
+            Available Appliances
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {applianceOptions.map((a) => (
+              <button
+                key={a}
+                type="button"
+                onClick={() => toggleSelection(a, appliances, setAppliances)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                  appliances.includes(a)
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/50"
+                }`}
+              >
+                {a}
+              </button>
+            ))}
           </div>
+        </div>
         </div>
 
         {/* Preferences */}
