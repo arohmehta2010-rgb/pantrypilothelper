@@ -15,6 +15,12 @@ const dietOptions = [
   "Halal", "Kosher", "Pescatarian", "Hindu (No Beef)", "Jain",
 ];
 
+const applianceOptions = [
+  "Any Appliance", "Oven", "Stovetop", "Air Fryer", "Microwave",
+  "Microwave Oven", "Instant Pot", "Slow Cooker", "Grill", "Toaster Oven",
+  "Blender", "No Cook",
+];
+
 const preferenceOptions = [
   "Quick & Easy", "Budget-Friendly", "Comfort Food", "Healthy",
   "Spicy", "Mild", "Kid-Friendly", "Meal Prep", "One-Pot", "Under 30 min",
