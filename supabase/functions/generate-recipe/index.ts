@@ -16,12 +16,46 @@ serve(async (req) => {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const systemPrompt = `You are a professional chef and nutritionist. Generate exactly 5 different recipes based on the user's dietary restrictions, food preferences, and available ingredients.
 
-Return the recipes by calling the provided tool function.
+You MUST respond with ONLY a valid JSON object (no markdown, no code blocks, no extra text). The JSON must have this exact structure:
+{
+  "recipes": [
+    {
+      "name": "Recipe Name",
+      "description": "A brief appetizing description",
+      "imageQuery": "2-3 word search term for a photo of this dish",
+      "category": "e.g. High Protein, Comfort Food, Quick & Easy, Healthy, Vegan, Vegetarian",
+      "servings": 4,
+      "prepTime": "15 min",
+      "cookTime": "30 min",
+      "estimatedCost": "$8-12",
+      "ingredients": [
+        { "item": "ingredient name", "amount": "1 cup" }
+      ],
+      "steps": [
+        "Step 1 description",
+        "Step 2 description"
+      ],
+      "nutrition": {
+        "calories": 350,
+        "protein": "25g",
+        "carbs": "40g",
+        "fat": "12g",
+        "fiber": "6g",
+        "sugar": "8g",
+        "sodium": "450mg"
+      },
+      "tips": "Optional helpful cooking tips"
+    }
+  ]
+}
 
 Rules:
 - Primarily use the ingredients provided, but you may suggest 1-3 common pantry staples per recipe if needed
@@ -31,12 +65,14 @@ Rules:
 - Provide a realistic cost estimate in USD
 - Steps should be clear and detailed enough for a beginner
 - Keep recipes practical and achievable in a home kitchen
-- For imageQuery, provide 2-3 descriptive words for the finished dish (e.g. "chicken stir fry", "pasta carbonara", "vegan buddha bowl") — this will be used to find a matching photo`;
+- For imageQuery, provide 2-3 descriptive words for the finished dish (e.g. "chicken stir fry", "pasta carbonara", "vegan buddha bowl")`;
 
     const userPrompt = `Generate 5 recipes with these constraints:
 - Dietary restrictions: ${diet.join(", ")}
 - Food preferences: ${preferences.length > 0 ? preferences.join(", ") : "None specified"}
 - Available ingredients: ${ingredients.join(", ")}`;
+
+    console.log("Calling AI gateway...");
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -47,79 +83,19 @@ Rules:
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-2.5-flash",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
-          tools: [
-            {
-              type: "function",
-              function: {
-                name: "return_recipes",
-                description: "Return 5 generated recipes",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    recipes: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          name: { type: "string" },
-                          description: { type: "string" },
-                          imageQuery: { type: "string", description: "2-3 word search term for a photo of this dish" },
-                          category: { type: "string", description: "e.g. High Protein, Comfort Food, Quick & Easy, Healthy, Vegan, Vegetarian" },
-                          servings: { type: "number" },
-                          prepTime: { type: "string" },
-                          cookTime: { type: "string" },
-                          estimatedCost: { type: "string" },
-                          ingredients: {
-                            type: "array",
-                            items: {
-                              type: "object",
-                              properties: {
-                                item: { type: "string" },
-                                amount: { type: "string" },
-                              },
-                              required: ["item", "amount"],
-                              additionalProperties: false,
-                            },
-                          },
-                          steps: { type: "array", items: { type: "string" } },
-                          nutrition: {
-                            type: "object",
-                            properties: {
-                              calories: { type: "number" },
-                              protein: { type: "string" },
-                              carbs: { type: "string" },
-                              fat: { type: "string" },
-                              fiber: { type: "string" },
-                              sugar: { type: "string" },
-                              sodium: { type: "string" },
-                            },
-                            required: ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"],
-                            additionalProperties: false,
-                          },
-                          tips: { type: "string" },
-                        },
-                        required: ["name", "description", "imageQuery", "category", "servings", "prepTime", "cookTime", "estimatedCost", "ingredients", "steps", "nutrition"],
-                        additionalProperties: false,
-                      },
-                    },
-                  },
-                  required: ["recipes"],
-                  additionalProperties: false,
-                },
-              },
-            },
-          ],
-          tool_choice: { type: "function", function: { name: "return_recipes" } },
         }),
       }
     );
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Too many requests. Please wait a moment and try again." }),
@@ -132,32 +108,39 @@ Rules:
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      return new Response(
+        JSON.stringify({ error: "Failed to generate recipes. Please try again." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
-    
-    // Extract from tool call
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
-      // Fallback: try content
-      const content = data.choices?.[0]?.message?.content;
-      if (content) {
-        const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-        const parsed = JSON.parse(cleaned);
-        const recipes = parsed.recipes || [parsed];
-        return new Response(JSON.stringify({ recipes }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error("No tool call or content in AI response");
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      console.error("No content in AI response:", JSON.stringify(data));
+      return new Response(
+        JSON.stringify({ error: "No response from AI. Please try again." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const args = JSON.parse(toolCall.function.arguments);
+    // Parse JSON from response, handling potential markdown code blocks
+    let recipesData;
+    try {
+      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      recipesData = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error("Failed to parse recipe JSON:", content);
+      return new Response(
+        JSON.stringify({ error: "Failed to parse recipes. Please try again." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    return new Response(JSON.stringify({ recipes: args.recipes }), {
+    const recipes = recipesData.recipes || [recipesData];
+
+    return new Response(JSON.stringify({ recipes }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
