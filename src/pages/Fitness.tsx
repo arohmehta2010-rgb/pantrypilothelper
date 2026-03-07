@@ -118,6 +118,7 @@ export default function Fitness() {
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
         PantryPilot — simple / fast / healthy
       </footer>
+      </div>
     </div>
   );
 }
