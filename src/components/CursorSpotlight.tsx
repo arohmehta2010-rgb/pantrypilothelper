@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 const GRID_SIZE = 60;
-const EXPAND_RADIUS = 120;
+const EXPAND_RADIUS = 150;
 
 const CursorSpotlight = () => {
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -41,7 +41,7 @@ const CursorSpotlight = () => {
     if (!ctx) return;
 
     const w = window.innerWidth;
-    const h = document.documentElement.scrollHeight;
+    const h = window.innerHeight;
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -50,53 +50,52 @@ const CursorSpotlight = () => {
     ctx.clearRect(0, 0, w, h);
 
     const { x: mx, y: my } = posRef.current;
-    const scrollY = window.scrollY;
-    const cursorY = my + scrollY;
+    const hovering = visibleRef.current;
 
-    // Draw vertical lines
+    // Vertical lines
     for (let x = 0; x <= w; x += GRID_SIZE) {
       const dist = Math.abs(x - mx);
-      const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
-      const alpha = 0.04 + influence * 0.12;
-      const lineWidth = 0.5 + influence * 1.5;
+      const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
+      const alpha = 0.06 + influence * 0.18;
+      const lineWidth = 0.5 + influence * 2;
 
       ctx.beginPath();
-      ctx.strokeStyle = `hsla(260, 55%, 55%, ${visibleRef.current ? alpha : 0.04})`;
+      ctx.strokeStyle = `hsla(260, 55%, 55%, ${alpha})`;
       ctx.lineWidth = lineWidth;
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
       ctx.stroke();
     }
 
-    // Draw horizontal lines
+    // Horizontal lines
     for (let y = 0; y <= h; y += GRID_SIZE) {
-      const dist = Math.abs(y - cursorY);
-      const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
-      const alpha = 0.04 + influence * 0.12;
-      const lineWidth = 0.5 + influence * 1.5;
+      const dist = Math.abs(y - my);
+      const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
+      const alpha = 0.06 + influence * 0.18;
+      const lineWidth = 0.5 + influence * 2;
 
       ctx.beginPath();
-      ctx.strokeStyle = `hsla(260, 55%, 55%, ${visibleRef.current ? alpha : 0.04})`;
+      ctx.strokeStyle = `hsla(260, 55%, 55%, ${alpha})`;
       ctx.lineWidth = lineWidth;
       ctx.moveTo(0, y);
       ctx.lineTo(w, y);
       ctx.stroke();
     }
 
-    // Draw brighter intersections near cursor
-    for (let x = 0; x <= w; x += GRID_SIZE) {
-      for (let y = 0; y <= h; y += GRID_SIZE) {
-        const dx = x - mx;
-        const dy = y - cursorY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
-        if (influence > 0 && visibleRef.current) {
-          const dotAlpha = influence * 0.4;
-          const dotSize = 1 + influence * 2;
-          ctx.beginPath();
-          ctx.fillStyle = `hsla(260, 55%, 65%, ${dotAlpha})`;
-          ctx.arc(x, y, dotSize, 0, Math.PI * 2);
-          ctx.fill();
+    // Intersection dots near cursor
+    if (hovering) {
+      for (let x = 0; x <= w; x += GRID_SIZE) {
+        for (let y = 0; y <= h; y += GRID_SIZE) {
+          const dx = x - mx;
+          const dy = y - my;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
+          if (influence > 0) {
+            ctx.beginPath();
+            ctx.fillStyle = `hsla(260, 55%, 70%, ${influence * 0.5})`;
+            ctx.arc(x, y, 1 + influence * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
     }
@@ -110,7 +109,7 @@ const CursorSpotlight = () => {
       const canvas = canvasRef.current;
       if (canvas) {
         canvas.width = window.innerWidth;
-        canvas.height = document.documentElement.scrollHeight;
+        canvas.height = window.innerHeight;
       }
     };
     window.addEventListener("resize", handleResize);
@@ -122,11 +121,9 @@ const CursorSpotlight = () => {
 
   return (
     <>
-      {/* Grid lines */}
       <canvas
         ref={canvasRef}
         className="pointer-events-none fixed inset-0 z-0"
-        style={{ opacity: 1 }}
       />
       {/* Radial glow */}
       <div
