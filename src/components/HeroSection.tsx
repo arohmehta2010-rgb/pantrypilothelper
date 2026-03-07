@@ -37,11 +37,13 @@ const HeroSection = ({ onGetStarted, onBrowse }: HeroSectionProps) => {
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="flex justify-center mb-4">
-            <img
-              src={logoImage}
-              alt="PantryPilot — Your Smart Meal Plan Helper"
-              className="w-80 sm:w-96 object-contain"
-            />
+            <div className="bg-[hsl(260,28%,25%)] rounded-3xl p-8 sm:p-12">
+              <img
+                src={logoImage}
+                alt="PantryPilot — Your Smart Meal Plan Helper"
+                className="w-80 sm:w-96 object-contain"
+              />
+            </div>
           </div>
           <h1 className="text-4xl sm:text-6xl font-display font-semibold tracking-tight text-foreground leading-tight">
             Cook smarter with{" "}
