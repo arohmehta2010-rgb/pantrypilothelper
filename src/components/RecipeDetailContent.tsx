@@ -25,6 +25,8 @@ interface RecipeDetailContentProps {
 
 const TUTORIAL_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-tutorial`;
 
+const FALLBACK_RECIPE_IMAGE = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&h=800&fit=crop";
+
 const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailContentProps) => {
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -220,7 +222,17 @@ const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailCo
     <>
       {/* Hero image */}
       <div className="relative h-56 sm:h-72 overflow-hidden rounded-t-2xl">
-        <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover" />
+        <img
+          src={recipe.image}
+          alt={recipe.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.onerror = null;
+            target.src = FALLBACK_RECIPE_IMAGE;
+          }}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
         <div className="absolute bottom-4 left-6 right-16">
           <span className="text-xs bg-primary/90 text-primary-foreground px-2.5 py-1 rounded-full font-medium">

@@ -6,33 +6,57 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-async function searchPexelsImage(query: string, pexelsKey: string, usedIds: Set<number>): Promise<string> {
+const FALLBACK_IMAGE_URL = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop";
+
+async function searchPexelsImage(
+  query: string,
+  recipeName: string,
+  category: string,
+  pexelsKey: string,
+  usedIds: Set<number>
+): Promise<string> {
+  const searchTerms = [
+    query,
+    recipeName,
+    category ? `${category} dish` : "",
+    "plated food",
+  ].filter(Boolean);
+
   try {
-    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query + " food")}&per_page=5&orientation=landscape`;
-    const resp = await fetch(url, {
-      headers: { Authorization: pexelsKey },
-    });
-    if (!resp.ok) {
-      console.error("Pexels API error:", resp.status);
-      return "";
-    }
-    const data = await resp.json();
-    const photos = data.photos || [];
-    // Pick the first photo not already used
-    for (const photo of photos) {
-      if (!usedIds.has(photo.id)) {
-        usedIds.add(photo.id);
-        return photo.src?.medium || photo.src?.small || "";
+    for (const term of searchTerms) {
+      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(`${term} food`)}&per_page=10&orientation=landscape`;
+      const resp = await fetch(url, {
+        headers: { Authorization: pexelsKey },
+      });
+
+      if (!resp.ok) {
+        console.error("Pexels API error:", resp.status, "for", term);
+        continue;
+      }
+
+      const data = await resp.json();
+      const photos = data.photos || [];
+
+      // Pick first valid, non-duplicate image URL
+      for (const photo of photos) {
+        const imageUrl = photo?.src?.large || photo?.src?.medium || photo?.src?.small || "";
+        if (imageUrl && !usedIds.has(photo.id)) {
+          usedIds.add(photo.id);
+          return imageUrl;
+        }
+      }
+
+      // fallback to first valid result for this term
+      const firstValid = photos.find((photo: any) => photo?.src?.large || photo?.src?.medium || photo?.src?.small);
+      if (firstValid) {
+        return firstValid.src.large || firstValid.src.medium || firstValid.src.small;
       }
     }
-    // If all are used, return first result anyway
-    if (photos.length > 0) {
-      return photos[0].src?.medium || photos[0].src?.small || "";
-    }
-    return "";
+
+    return FALLBACK_IMAGE_URL;
   } catch (err) {
     console.error("Pexels search error:", err);
-    return "";
+    return FALLBACK_IMAGE_URL;
   }
 }
 
@@ -206,12 +230,18 @@ Rules:
       console.log("Fetching Pexels images for", recipes.length, "recipes...");
       const usedIds = new Set<number>();
       const imagePromises = recipes.map((recipe) =>
-        searchPexelsImage(recipe.imageQuery || recipe.name, PEXELS_API_KEY, usedIds)
+        searchPexelsImage(
+          recipe.imageQuery || recipe.name,
+          recipe.name || "dish",
+          recipe.category || "",
+          PEXELS_API_KEY,
+          usedIds
+        )
       );
       const images = await Promise.all(imagePromises);
       recipes = recipes.map((recipe, i) => ({
         ...recipe,
-        image: images[i] || "",
+        image: images[i] || FALLBACK_IMAGE_URL,
       }));
       console.log("Pexels images attached.");
     }
