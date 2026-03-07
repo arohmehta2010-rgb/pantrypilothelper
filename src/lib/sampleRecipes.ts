@@ -4,7 +4,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Grilled Lemon Herb Chicken",
     description: "Juicy grilled chicken marinated in fresh lemon, garlic, and Mediterranean herbs. A protein-packed classic.",
-    image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=400&fit=crop",
     category: "High Protein",
     servings: 4,
     prepTime: "15 min",
@@ -40,7 +40,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Creamy Tuscan Pasta",
     description: "Rich and creamy sun-dried tomato pasta with spinach and parmesan. Ready in under 30 minutes.",
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&h=400&fit=crop",
     category: "Comfort Food",
     servings: 4,
     prepTime: "10 min",
@@ -76,7 +76,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Thai Basil Stir-Fry",
     description: "A quick, fiery stir-fry with ground chicken, Thai basil, and chili. Bold flavors in 15 minutes.",
-    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1569058242567-93de6f36f8eb?w=600&h=400&fit=crop",
     category: "Quick & Easy",
     servings: 2,
     prepTime: "5 min",
@@ -112,7 +112,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Avocado & Black Bean Bowl",
     description: "A vibrant, plant-powered bowl loaded with black beans, avocado, corn, and a zesty lime dressing.",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1543339308-d595c4f5c5e7?w=600&h=400&fit=crop",
     category: "Vegan",
     servings: 2,
     prepTime: "10 min",
@@ -147,7 +147,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Classic Beef Tacos",
     description: "Seasoned ground beef tacos with all the fixings — cheese, salsa, lettuce, and sour cream.",
-    image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600&h=400&fit=crop",
     category: "Comfort Food",
     servings: 4,
     prepTime: "10 min",
@@ -182,7 +182,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Salmon Teriyaki Bowl",
     description: "Glazed teriyaki salmon over steamed rice with edamame, cucumber, and sesame. Clean eating made delicious.",
-    image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=600&h=400&fit=crop",
     category: "Healthy",
     servings: 2,
     prepTime: "10 min",
@@ -217,7 +217,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Mushroom Risotto",
     description: "Creamy, earthy Italian risotto with mixed mushrooms, parmesan, and a touch of white wine.",
-    image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1633436375153-d7045cb93e38?w=600&h=400&fit=crop",
     category: "Vegetarian",
     servings: 4,
     prepTime: "10 min",
@@ -253,7 +253,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Spicy Shrimp Tacos",
     description: "Blackened shrimp tacos with mango salsa and chipotle crema. A crowd-pleaser in 20 minutes.",
-    image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1611250188496-e966043a0629?w=600&h=400&fit=crop",
     category: "Quick & Easy",
     servings: 3,
     prepTime: "10 min",
@@ -290,7 +290,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Steak & Sweet Potato",
     description: "Pan-seared sirloin steak with roasted sweet potato wedges and a garlic herb butter.",
-    image: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1558030006-450675393462?w=600&h=400&fit=crop",
     category: "High Protein",
     servings: 2,
     prepTime: "10 min",
@@ -317,7 +317,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Greek Chicken Power Bowl",
     description: "Grilled chicken over quinoa with feta, olives, cucumber, and a tangy tzatziki drizzle.",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600&h=400&fit=crop",
     category: "High Protein",
     servings: 2,
     prepTime: "15 min",
@@ -372,7 +372,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Chicken Pot Pie",
     description: "Flaky golden crust filled with tender chicken, vegetables, and a rich creamy sauce.",
-    image: "https://images.unsplash.com/photo-1585325701956-60dd9c8553bc?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1621532455591-12a882b86c04?w=600&h=400&fit=crop",
     category: "Comfort Food",
     servings: 6,
     prepTime: "20 min",
@@ -428,7 +428,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Egg Fried Rice",
     description: "Restaurant-style fried rice with fluffy eggs, green onions, and a hint of sesame. Uses leftover rice.",
-    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&h=400&fit=crop",
     category: "Quick & Easy",
     servings: 2,
     prepTime: "5 min",
@@ -456,7 +456,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Coconut Chickpea Curry",
     description: "A rich, aromatic curry with chickpeas, spinach, and coconut milk. Warm spices, zero compromise.",
-    image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=400&fit=crop",
     category: "Vegan",
     servings: 4,
     prepTime: "10 min",
@@ -483,7 +483,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Roasted Cauliflower Tacos",
     description: "Crispy spiced cauliflower with pickled onions, avocado crema, and fresh cilantro on corn tortillas.",
-    image: "https://images.unsplash.com/photo-1564093497595-593b96d80180?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?w=600&h=400&fit=crop",
     category: "Vegan",
     servings: 3,
     prepTime: "10 min",
@@ -511,7 +511,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Mediterranean Grilled Fish",
     description: "Light, flaky white fish with cherry tomatoes, capers, olives, and a lemon-herb sauce.",
-    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=600&h=400&fit=crop",
     category: "Healthy",
     servings: 2,
     prepTime: "10 min",
@@ -538,7 +538,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Turkey Lettuce Wraps",
     description: "Light and crunchy lettuce cups filled with savory ground turkey, water chestnuts, and hoisin glaze.",
-    image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1625944525533-473f1a3d54e7?w=600&h=400&fit=crop",
     category: "Healthy",
     servings: 3,
     prepTime: "10 min",
@@ -566,7 +566,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Caprese Stuffed Portobello",
     description: "Juicy portobello mushrooms stuffed with fresh mozzarella, tomatoes, basil, and a balsamic reduction.",
-    image: "https://images.unsplash.com/photo-1506354666786-959d6d497f1a?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1614961909013-e61415aaef88?w=600&h=400&fit=crop",
     category: "Vegetarian",
     servings: 2,
     prepTime: "10 min",
@@ -592,7 +592,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Spinach & Ricotta Stuffed Shells",
     description: "Jumbo pasta shells loaded with creamy ricotta and spinach, baked in marinara sauce.",
-    image: "https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=600&h=400&fit=crop",
     category: "Vegetarian",
     servings: 4,
     prepTime: "20 min",
