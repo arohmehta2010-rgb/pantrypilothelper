@@ -1,4 +1,4 @@
-import heroImage from "@/assets/pantrypilot-hero.jpg";
+import logoImage from "@/assets/pantrypilot-logo-clean.png";
 import { Button } from "@/components/ui/button";
 import { ChefHat, Salad, Clock, DollarSign } from "lucide-react";
 
