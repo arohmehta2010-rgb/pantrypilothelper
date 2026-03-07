@@ -167,6 +167,50 @@ const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailCo
     }
   };
 
+  const generateAlternatives = async () => {
+    if (alternatives.length > 0) {
+      setShowAlternatives(!showAlternatives);
+      return;
+    }
+
+    setShowAlternatives(true);
+    setIsAlternativesLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-alternatives", {
+        body: {
+          recipeName: recipe.name,
+          description: recipe.description,
+          ingredients: recipe.ingredients,
+          steps: recipe.steps,
+          nutrition: recipe.nutrition,
+          tips: recipe.tips,
+        },
+      });
+
+      if (error) {
+        console.error("Alternatives error:", error);
+        toast.error("Failed to generate alternatives. Please try again.");
+        setShowAlternatives(false);
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+        setShowAlternatives(false);
+        return;
+      }
+
+      setAlternatives(data.alternatives || []);
+    } catch (err) {
+      console.error("Alternatives error:", err);
+      toast.error("Something went wrong. Please try again.");
+      setShowAlternatives(false);
+    } finally {
+      setIsAlternativesLoading(false);
+    }
+  };
+
   // Find similar recipes by category, excluding the current one
   const similarRecipes = sampleRecipes
     .filter((r) => r.category === recipe.category && r.name !== recipe.name)
