@@ -229,6 +229,30 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
                 {d}
               </button>
             ))}
+            {/* Show custom diet items */}
+            {diet.filter((d) => !dietOptions.includes(d)).map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => toggleSelection(d, diet, setDiet)}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border bg-primary text-primary-foreground border-primary"
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={customDiet}
+              onChange={(e) => setCustomDiet(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomItem(customDiet, diet, setDiet, setCustomDiet); } }}
+              placeholder="Add custom restriction..."
+              className="flex-1 rounded-lg border border-border/50 bg-[hsl(260,28%,7%)] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
+            />
+            <Button type="button" onClick={() => addCustomItem(customDiet, diet, setDiet, setCustomDiet)} size="sm" variant="outline" className="gap-1 text-xs">
+              <Plus className="w-3 h-3" /> Add
+            </Button>
+          </div>
         </div>
 
         {/* Appliances */}
@@ -251,8 +275,29 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
                 {a}
               </button>
             ))}
+            {appliances.filter((a) => !applianceOptions.includes(a)).map((a) => (
+              <button
+                key={a}
+                type="button"
+                onClick={() => toggleSelection(a, appliances, setAppliances)}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border bg-primary text-primary-foreground border-primary"
+              >
+                {a}
+              </button>
+            ))}
           </div>
-        </div>
+          <div className="flex gap-2">
+            <input
+              value={customAppliance}
+              onChange={(e) => setCustomAppliance(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomItem(customAppliance, appliances, setAppliances, setCustomAppliance); } }}
+              placeholder="Add custom appliance..."
+              className="flex-1 rounded-lg border border-border/50 bg-[hsl(260,28%,7%)] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
+            />
+            <Button type="button" onClick={() => addCustomItem(customAppliance, appliances, setAppliances, setCustomAppliance)} size="sm" variant="outline" className="gap-1 text-xs">
+              <Plus className="w-3 h-3" /> Add
+            </Button>
+          </div>
         </div>
 
         {/* Preferences */}
@@ -275,6 +320,28 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
                 {p}
               </button>
             ))}
+            {preferences.filter((p) => !preferenceOptions.includes(p)).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => toggleSelection(p, preferences, setPreferences)}
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors border bg-primary text-primary-foreground border-primary"
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={customPreference}
+              onChange={(e) => setCustomPreference(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomItem(customPreference, preferences, setPreferences, setCustomPreference); } }}
+              placeholder="Add custom preference..."
+              className="flex-1 rounded-lg border border-border/50 bg-[hsl(260,28%,7%)] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
+            />
+            <Button type="button" onClick={() => addCustomItem(customPreference, preferences, setPreferences, setCustomPreference)} size="sm" variant="outline" className="gap-1 text-xs">
+              <Plus className="w-3 h-3" /> Add
+            </Button>
           </div>
         </div>
 
@@ -289,7 +356,7 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
               onChange={(e) => setIngredients(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type an ingredient and press Enter..."
-              className="flex-1 rounded-lg border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+              className="flex-1 rounded-lg border border-border/50 bg-[hsl(260,28%,7%)] px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring transition"
             />
             <Button type="button" onClick={addIngredient} variant="outline">
               Add
