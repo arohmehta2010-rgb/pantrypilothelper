@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import CursorSpotlight from "@/components/CursorSpotlight";
 import HeroSection from "@/components/HeroSection";
 import RecipeBrowse from "@/components/RecipeBrowse";
 import RecipeGenerator from "@/components/RecipeGenerator";
@@ -16,7 +17,8 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col">
+      <CursorSpotlight />
       <Navbar
         onHomeClick={() => setView("home")}
         onBrowseClick={() => setView("browse")}

@@ -10,6 +10,7 @@ import BiometricTracker from "@/components/fitness/BiometricTracker";
 import NutritionLogger from "@/components/fitness/NutritionLogger";
 import MealPlanSection from "@/components/fitness/MealPlanSection";
 import { toast } from "sonner";
+import CursorSpotlight from "@/components/CursorSpotlight";
 
 const tabs = [
   { id: "stats", label: "Body Stats", icon: User },
@@ -31,7 +32,8 @@ export default function Fitness() {
   const dailyTargets = tdee && store.weightGoal ? calculateDailyTargets(tdee, store.weightGoal) : null;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col">
+      <CursorSpotlight />
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
         <button onClick={() => nav("/")} className="flex items-center gap-2 text-xl font-display font-semibold text-foreground tracking-tight hover:text-primary transition">
