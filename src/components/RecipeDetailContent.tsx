@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Clock, Flame, DollarSign, Users, ArrowRight, X, Plus, Tag } from "lucide-react";
+import { Clock, Flame, DollarSign, Users, ArrowRight, X, Plus, Tag, BookOpen, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { sampleRecipes } from "@/lib/sampleRecipes";
 import type { Recipe } from "@/lib/types";
+import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 type FullRecipe = Recipe & { image: string; category: string };
 
@@ -12,9 +14,14 @@ interface RecipeDetailContentProps {
   onSelectRecipe?: (recipe: FullRecipe) => void;
 }
 
+const TUTORIAL_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-tutorial`;
+
 const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailContentProps) => {
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [tutorialContent, setTutorialContent] = useState("");
+  const [isTutorialLoading, setIsTutorialLoading] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const addTag = () => {
     const trimmed = tagInput.trim();
@@ -32,6 +39,119 @@ const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailCo
     if (e.key === "Enter") {
       e.preventDefault();
       addTag();
+    }
+  };
+
+  const generateTutorial = async () => {
+    if (tutorialContent) {
+      setShowTutorial(!showTutorial);
+      return;
+    }
+
+    setShowTutorial(true);
+    setIsTutorialLoading(true);
+    setTutorialContent("");
+
+    try {
+      const resp = await fetch(TUTORIAL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          recipeName: recipe.name,
+          description: recipe.description,
+          ingredients: recipe.ingredients,
+          steps: recipe.steps,
+          tips: recipe.tips,
+        }),
+      });
+
+      if (resp.status === 429) {
+        toast.error("Too many requests. Please wait a moment and try again.");
+        setIsTutorialLoading(false);
+        setShowTutorial(false);
+        return;
+      }
+      if (resp.status === 402) {
+        toast.error("AI usage limit reached. Please try again later.");
+        setIsTutorialLoading(false);
+        setShowTutorial(false);
+        return;
+      }
+      if (!resp.ok || !resp.body) {
+        toast.error("Failed to generate tutorial. Please try again.");
+        setIsTutorialLoading(false);
+        setShowTutorial(false);
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let accumulated = "";
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              accumulated += content;
+              setTutorialContent(accumulated);
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              accumulated += content;
+              setTutorialContent(accumulated);
+            }
+          } catch { /* ignore */ }
+        }
+      }
+    } catch (err) {
+      console.error("Tutorial error:", err);
+      toast.error("Something went wrong generating the tutorial.");
+      setShowTutorial(false);
+    } finally {
+      setIsTutorialLoading(false);
     }
   };
 
@@ -66,6 +186,41 @@ const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailCo
           <span className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" /> {recipe.servings} servings</span>
           <span className="flex items-center gap-1"><DollarSign className="w-4 h-4 text-primary" /> {recipe.estimatedCost}</span>
         </div>
+
+        {/* Cooking Tutorial Button */}
+        <Button
+          onClick={generateTutorial}
+          variant="outline"
+          className="w-full gap-2 border-primary/30 hover:bg-primary/10"
+          disabled={isTutorialLoading}
+        >
+          {isTutorialLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Generating Tutorial...
+            </>
+          ) : (
+            <>
+              <BookOpen className="w-4 h-4 text-primary" />
+              {tutorialContent ? (showTutorial ? "Hide Cooking Tutorial" : "Show Cooking Tutorial") : "Generate Cooking Tutorial"}
+            </>
+          )}
+        </Button>
+
+        {/* Tutorial Content */}
+        {showTutorial && (tutorialContent || isTutorialLoading) && (
+          <section className="rounded-xl border border-primary/30 bg-card p-6 space-y-3 animate-in fade-in-0 slide-in-from-top-2 duration-300">
+            {tutorialContent ? (
+              <div className="prose prose-sm prose-invert max-w-none [&_h1]:font-display [&_h1]:text-xl [&_h1]:text-foreground [&_h2]:font-display [&_h2]:text-lg [&_h2]:text-foreground [&_h2]:mt-6 [&_h2]:mb-2 [&_h3]:font-display [&_h3]:text-base [&_h3]:text-foreground [&_p]:text-foreground/80 [&_p]:text-sm [&_p]:leading-relaxed [&_li]:text-foreground/80 [&_li]:text-sm [&_strong]:text-primary [&_ul]:space-y-1 [&_ol]:space-y-1">
+                <ReactMarkdown>{tutorialContent}</ReactMarkdown>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Custom Dietary Tags */}
         <section className="rounded-xl border bg-secondary/50 p-5 space-y-3">
