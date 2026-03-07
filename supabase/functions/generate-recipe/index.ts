@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { diet, preferences, ingredients } = await req.json();
+    const { diet, preferences, ingredients, appliances } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -22,40 +22,7 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a professional chef and nutritionist. Generate exactly 5 different recipes based on the user's dietary restrictions, food preferences, and available ingredients.
-
-You MUST respond with ONLY a valid JSON object (no markdown, no code blocks, no extra text). The JSON must have this exact structure:
-{
-  "recipes": [
-    {
-      "name": "Recipe Name",
-      "description": "A brief appetizing description",
-      "imageQuery": "2-3 word search term for a photo of this dish",
-      "category": "e.g. High Protein, Comfort Food, Quick & Easy, Healthy, Vegan, Vegetarian",
-      "servings": 4,
-      "prepTime": "15 min",
-      "cookTime": "30 min",
-      "estimatedCost": "$8-12",
-      "ingredients": [
-        { "item": "ingredient name", "amount": "1 cup" }
-      ],
-      "steps": [
-        "Step 1 description",
-        "Step 2 description"
-      ],
-      "nutrition": {
-        "calories": 350,
-        "protein": "25g",
-        "carbs": "40g",
-        "fat": "12g",
-        "fiber": "6g",
-        "sugar": "8g",
-        "sodium": "450mg"
-      },
-      "tips": "Optional helpful cooking tips"
-    }
-  ]
-}
+    const systemPrompt = `You are a professional chef and nutritionist. Generate exactly 5 different recipes based on the user's dietary restrictions, food preferences, available appliances, and available ingredients.
 
 Rules:
 - Primarily use the ingredients provided, but you may suggest 1-3 common pantry staples per recipe if needed
@@ -65,14 +32,16 @@ Rules:
 - Provide a realistic cost estimate in USD
 - Steps should be clear and detailed enough for a beginner
 - Keep recipes practical and achievable in a home kitchen
-- For imageQuery, provide 2-3 descriptive words for the finished dish (e.g. "chicken stir fry", "pasta carbonara", "vegan buddha bowl")`;
+- For imageQuery, provide a VERY SPECIFIC 3-5 word description of the finished plated dish as it would appear in a food photography photo. Be descriptive about the actual dish appearance, not generic. Examples: "golden crispy chicken thighs rosemary", "creamy mushroom risotto parmesan shavings", "colorful vegan buddha bowl quinoa"
+- The servings field MUST be a plain integer number (e.g. 4), never a string or expression`;
 
     const userPrompt = `Generate 5 recipes with these constraints:
 - Dietary restrictions: ${diet.join(", ")}
 - Food preferences: ${preferences.length > 0 ? preferences.join(", ") : "None specified"}
+- Available appliances: ${appliances ? appliances.join(", ") : "Any"}
 - Available ingredients: ${ingredients.join(", ")}`;
 
-    console.log("Calling AI gateway...");
+    console.log("Calling AI gateway with tool calling...");
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -88,6 +57,72 @@ Rules:
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "return_recipes",
+                description: "Return exactly 5 generated recipes",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    recipes: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string", description: "Recipe name" },
+                          description: { type: "string", description: "A brief appetizing description" },
+                          imageQuery: { type: "string", description: "3-5 word specific description of the finished plated dish for food photography search" },
+                          category: { type: "string", description: "e.g. High Protein, Comfort Food, Quick & Easy, Healthy, Vegan" },
+                          servings: { type: "integer", description: "Number of servings" },
+                          prepTime: { type: "string", description: "e.g. 15 min" },
+                          cookTime: { type: "string", description: "e.g. 30 min" },
+                          estimatedCost: { type: "string", description: "e.g. $8-12" },
+                          ingredients: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                item: { type: "string" },
+                                amount: { type: "string" }
+                              },
+                              required: ["item", "amount"],
+                              additionalProperties: false
+                            }
+                          },
+                          steps: {
+                            type: "array",
+                            items: { type: "string" }
+                          },
+                          nutrition: {
+                            type: "object",
+                            properties: {
+                              calories: { type: "integer" },
+                              protein: { type: "string" },
+                              carbs: { type: "string" },
+                              fat: { type: "string" },
+                              fiber: { type: "string" },
+                              sugar: { type: "string" },
+                              sodium: { type: "string" }
+                            },
+                            required: ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"],
+                            additionalProperties: false
+                          },
+                          tips: { type: "string", description: "Optional helpful cooking tips" }
+                        },
+                        required: ["name", "description", "imageQuery", "category", "servings", "prepTime", "cookTime", "estimatedCost", "ingredients", "steps", "nutrition"],
+                        additionalProperties: false
+                      }
+                    }
+                  },
+                  required: ["recipes"],
+                  additionalProperties: false
+                }
+              }
+            }
+          ],
+          tool_choice: { type: "function", function: { name: "return_recipes" } },
         }),
       }
     );
@@ -115,23 +150,35 @@ Rules:
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      console.error("No content in AI response:", JSON.stringify(data));
+    
+    // Extract from tool call response
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall) {
+      // Fallback: try parsing content directly
+      const content = data.choices?.[0]?.message?.content;
+      if (content) {
+        try {
+          const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const parsed = JSON.parse(cleaned);
+          return new Response(JSON.stringify({ recipes: parsed.recipes || [parsed] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } catch {
+          console.error("Failed to parse fallback content:", content?.substring(0, 500));
+        }
+      }
+      console.error("No tool call in AI response:", JSON.stringify(data).substring(0, 500));
       return new Response(
         JSON.stringify({ error: "No response from AI. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Parse JSON from response, handling potential markdown code blocks
     let recipesData;
     try {
-      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      recipesData = JSON.parse(cleaned);
+      recipesData = JSON.parse(toolCall.function.arguments);
     } catch (parseErr) {
-      console.error("Failed to parse recipe JSON:", content);
+      console.error("Failed to parse tool call arguments:", toolCall.function.arguments?.substring(0, 500));
       return new Response(
         JSON.stringify({ error: "Failed to parse recipes. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
