@@ -63,6 +63,11 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPreview, setSelectedPreview] = useState<FullRecipe | null>(null);
 
+  // Custom input states
+  const [customDiet, setCustomDiet] = useState("");
+  const [customAppliance, setCustomAppliance] = useState("");
+  const [customPreference, setCustomPreference] = useState("");
+
   const toggleSelection = (
     item: string,
     list: string[],
@@ -71,6 +76,19 @@ const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
     setList(
       list.includes(item) ? list.filter((i) => i !== item) : [...list, item]
     );
+  };
+
+  const addCustomItem = (
+    value: string,
+    list: string[],
+    setList: (l: string[]) => void,
+    clearInput: (v: string) => void
+  ) => {
+    const trimmed = value.trim();
+    if (trimmed && !list.includes(trimmed)) {
+      setList([...list, trimmed]);
+      clearInput("");
+    }
   };
 
   const addIngredient = () => {
