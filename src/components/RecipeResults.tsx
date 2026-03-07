@@ -57,7 +57,11 @@ const RecipeResults = ({ recipes, onBack }: RecipeResultsProps) => {
                   alt={recipe.name}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
-                  onError={(e) => { (e.target as HTMLImageElement).src = fallbackImage; }}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = fallbackImage;
+                  }}
                 />
                 {recipe.category && (
                   <span className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-xs font-medium text-foreground px-2.5 py-1 rounded-full border border-border">
