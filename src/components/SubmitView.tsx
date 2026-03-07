@@ -36,7 +36,7 @@ const SubmitView = ({ onSubmit }: SubmitViewProps) => {
     <section className="w-full max-w-xl mx-auto">
       <header className="text-center mb-10">
         <h1 className="text-3xl sm:text-4xl font-display font-semibold tracking-tight mb-3">
-          Ask <span className="text-highlight">PantryPilot</span>
+          Ask <span className="text-primary">PantryPilot</span>
         </h1>
         <p className="text-muted-foreground text-lg">
           Submit inquiries, feedback, or franchise interest. Your input helps shape PantryPilot.
