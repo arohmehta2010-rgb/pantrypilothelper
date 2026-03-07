@@ -4,6 +4,7 @@ import { ChefHat, Salad, Clock, DollarSign } from "lucide-react";
 
 interface HeroSectionProps {
   onGetStarted: () => void;
+  onBrowse?: () => void;
 }
 
 const features = [
