@@ -1,47 +1,38 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import PromoSection from "@/components/PromoSection";
-import PricingSection from "@/components/PricingSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import DeliverySection from "@/components/DeliverySection";
-import ContactSection from "@/components/ContactSection";
-import SubmitView from "@/components/SubmitView";
-import InboxView from "@/components/InboxView";
-import type { Message } from "@/components/SubmitView";
+import RecipeGenerator from "@/components/RecipeGenerator";
+import RecipeResult from "@/components/RecipeResult";
+import type { Recipe } from "@/lib/types";
 
 const Index = () => {
-  const [activeView, setActiveView] = useState<"home" | "ask" | "inbox">("home");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [view, setView] = useState<"home" | "generate" | "result">("home");
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
 
-  const handleSubmit = (msg: Message) => {
-    setMessages((prev) => [msg, ...prev]);
+  const handleRecipeGenerated = (r: Recipe) => {
+    setRecipe(r);
+    setView("result");
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar activeView={activeView} onViewChange={setActiveView} />
+      <Navbar onHomeClick={() => setView("home")} onGenerateClick={() => setView("generate")} />
 
-      {activeView === "home" && (
+      {view === "home" && (
         <main className="flex-1">
-          <HeroSection />
-          <PromoSection />
-          <PricingSection />
-          <HowItWorksSection />
-          <DeliverySection />
-          <ContactSection onAskClick={() => setActiveView("ask")} />
+          <HeroSection onGetStarted={() => setView("generate")} />
         </main>
       )}
 
-      {activeView === "ask" && (
-        <main className="flex-1 px-4 py-12 sm:px-6">
-          <SubmitView onSubmit={handleSubmit} />
+      {view === "generate" && (
+        <main className="flex-1 px-4 py-10 sm:px-6">
+          <RecipeGenerator onRecipeGenerated={handleRecipeGenerated} />
         </main>
       )}
 
-      {activeView === "inbox" && (
-        <main className="flex-1 px-4 py-12 sm:px-6">
-          <InboxView messages={messages} />
+      {view === "result" && recipe && (
+        <main className="flex-1 px-4 py-10 sm:px-6">
+          <RecipeResult recipe={recipe} onBack={() => setView("generate")} />
         </main>
       )}
 
