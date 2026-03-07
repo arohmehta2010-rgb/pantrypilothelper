@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import { ChefHat } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface NavbarProps {
   onHomeClick: () => void;
@@ -8,6 +8,8 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onHomeClick, onBrowseClick, onGenerateClick }: NavbarProps) => {
+  const nav = useNavigate();
+
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
       <button
@@ -18,23 +20,17 @@ const Navbar = ({ onHomeClick, onBrowseClick, onGenerateClick }: NavbarProps) =>
         PantryPilot
       </button>
       <div className="flex gap-1">
-        <button
-          onClick={onHomeClick}
-          className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted"
-        >
+        <button onClick={onHomeClick} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted">
           Home
         </button>
-        <button
-          onClick={onBrowseClick}
-          className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted"
-        >
+        <button onClick={onBrowseClick} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted">
           Browse
         </button>
-        <button
-          onClick={onGenerateClick}
-          className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          Generate Recipe
+        <button onClick={onGenerateClick} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted">
+          Generate
+        </button>
+        <button onClick={() => nav("/fitness")} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-primary text-primary-foreground hover:bg-primary/90">
+          Fitness
         </button>
       </div>
     </nav>
