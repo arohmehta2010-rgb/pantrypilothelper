@@ -20,7 +20,7 @@ const RecipeResults = ({ recipes, onBack }: RecipeResultsProps) => {
   // Use Pexels image from API if available, otherwise fallback to local matching
   const usedUrls = new Set<string>();
   const getImage = (recipe: RecipeWithImage): string => {
-    if (recipe.image) return recipe.image;
+    if (recipe.image?.trim()) return recipe.image;
     return getRecipeImage(recipe, usedUrls);
   };
 
