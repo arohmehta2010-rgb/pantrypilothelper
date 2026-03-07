@@ -36,7 +36,7 @@ const SubmitView = ({ onSubmit }: SubmitViewProps) => {
     <section className="w-full max-w-xl mx-auto">
       <header className="text-center mb-10">
         <h1 className="text-3xl sm:text-4xl font-display font-semibold tracking-tight mb-3">
-          Send a message to <span className="text-highlight">Shaila & Aroh</span>
+          Ask <span className="text-highlight">PantryPilot</span>
         </h1>
         <p className="text-muted-foreground text-lg">
           Submit inquiries, feedback, or franchise interest. Your input helps shape PantryPilot.
@@ -99,7 +99,7 @@ const SubmitView = ({ onSubmit }: SubmitViewProps) => {
         </div>
 
         <Button type="submit" size="lg" className="w-full text-base font-semibold">
-          Send to Shaila & Aroh
+          Ask PantryPilot
         </Button>
       </form>
     </section>
