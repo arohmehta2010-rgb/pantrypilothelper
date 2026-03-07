@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 const GRID_SIZE = 60;
 const EXPAND_RADIUS = 150;
+const PUSH_STRENGTH = 8;
 
 const CursorSpotlight = () => {
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -52,48 +53,101 @@ const CursorSpotlight = () => {
     const { x: mx, y: my } = posRef.current;
     const hovering = visibleRef.current;
 
-    // Vertical lines
-    for (let x = 0; x <= w; x += GRID_SIZE) {
-      const dist = Math.abs(x - mx);
-      const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
-      const alpha = 0.06 + influence * 0.18;
-      const lineWidth = 0.5 + influence * 2;
+    // Precompute displaced grid points
+    const cols = Math.ceil(w / GRID_SIZE) + 1;
+    const rows = Math.ceil(h / GRID_SIZE) + 1;
+    const points: { x: number; y: number; influence: number }[][] = [];
 
+    for (let r = 0; r < rows; r++) {
+      points[r] = [];
+      for (let c = 0; c < cols; c++) {
+        const baseX = c * GRID_SIZE;
+        const baseY = r * GRID_SIZE;
+        const dx = baseX - mx;
+        const dy = baseY - my;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
+
+        // Push points away from cursor (directional expansion)
+        let px = baseX;
+        let py = baseY;
+        if (influence > 0 && dist > 0) {
+          const pushAmount = influence * influence * PUSH_STRENGTH;
+          px += (dx / dist) * pushAmount;
+          py += (dy / dist) * pushAmount;
+        }
+
+        points[r][c] = { x: px, y: py, influence };
+      }
+    }
+
+    // Draw vertical lines through displaced points
+    for (let c = 0; c < cols; c++) {
       ctx.beginPath();
-      ctx.strokeStyle = `hsla(260, 55%, 55%, ${alpha})`;
-      ctx.lineWidth = lineWidth;
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
+      for (let r = 0; r < rows; r++) {
+        const p = points[r][c];
+        const alpha = 0.06 + p.influence * 0.18;
+        const lineWidth = 0.5 + p.influence * 2;
+
+        ctx.strokeStyle = `hsla(260, 55%, 55%, ${alpha})`;
+        ctx.lineWidth = lineWidth;
+
+        if (r === 0) {
+          ctx.moveTo(p.x, p.y);
+        } else {
+          // Draw segment from previous to current
+          ctx.stroke();
+          ctx.beginPath();
+          const prev = points[r - 1][c];
+          const segAlpha = Math.max(0.06, (prev.influence + p.influence) / 2 * 0.18 + 0.06);
+          const segWidth = Math.max(0.5, (prev.influence + p.influence) / 2 * 2 + 0.5);
+          ctx.strokeStyle = `hsla(260, 55%, 55%, ${segAlpha})`;
+          ctx.lineWidth = segWidth;
+          ctx.moveTo(prev.x, prev.y);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+        }
+      }
       ctx.stroke();
     }
 
-    // Horizontal lines
-    for (let y = 0; y <= h; y += GRID_SIZE) {
-      const dist = Math.abs(y - my);
-      const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
-      const alpha = 0.06 + influence * 0.18;
-      const lineWidth = 0.5 + influence * 2;
-
+    // Draw horizontal lines through displaced points
+    for (let r = 0; r < rows; r++) {
       ctx.beginPath();
-      ctx.strokeStyle = `hsla(260, 55%, 55%, ${alpha})`;
-      ctx.lineWidth = lineWidth;
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
+      for (let c = 0; c < cols; c++) {
+        const p = points[r][c];
+
+        if (c === 0) {
+          ctx.moveTo(p.x, p.y);
+        } else {
+          ctx.stroke();
+          ctx.beginPath();
+          const prev = points[r][c - 1];
+          const segAlpha = Math.max(0.06, (prev.influence + p.influence) / 2 * 0.18 + 0.06);
+          const segWidth = Math.max(0.5, (prev.influence + p.influence) / 2 * 2 + 0.5);
+          ctx.strokeStyle = `hsla(260, 55%, 55%, ${segAlpha})`;
+          ctx.lineWidth = segWidth;
+          ctx.moveTo(prev.x, prev.y);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+        }
+      }
       ctx.stroke();
     }
 
     // Intersection dots near cursor
     if (hovering) {
-      for (let x = 0; x <= w; x += GRID_SIZE) {
-        for (let y = 0; y <= h; y += GRID_SIZE) {
-          const dx = x - mx;
-          const dy = y - my;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
-          if (influence > 0) {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const p = points[r][c];
+          if (p.influence > 0) {
             ctx.beginPath();
-            ctx.fillStyle = `hsla(260, 55%, 70%, ${influence * 0.5})`;
-            ctx.arc(x, y, 1 + influence * 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(260, 55%, 70%, ${p.influence * 0.5})`;
+            ctx.arc(p.x, p.y, 1 + p.influence * 2.5, 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -125,7 +179,6 @@ const CursorSpotlight = () => {
         ref={canvasRef}
         className="pointer-events-none fixed inset-0 z-0"
       />
-      {/* Radial glow */}
       <div
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
