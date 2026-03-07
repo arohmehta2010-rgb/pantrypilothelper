@@ -1,34 +1,34 @@
 import { cn } from "@/lib/utils";
+import { ChefHat } from "lucide-react";
 
 interface NavbarProps {
-  activeView: "home" | "ask" | "inbox";
-  onViewChange: (view: "home" | "ask" | "inbox") => void;
+  onHomeClick: () => void;
+  onGenerateClick: () => void;
 }
 
-const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
+const Navbar = ({ onHomeClick, onGenerateClick }: NavbarProps) => {
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
       <button
-        onClick={() => onViewChange("home")}
-        className="text-xl font-display font-semibold text-foreground tracking-tight hover:opacity-80 transition"
+        onClick={onHomeClick}
+        className="flex items-center gap-2 text-xl font-display font-semibold text-foreground tracking-tight hover:text-primary transition"
       >
+        <ChefHat className="w-6 h-6 text-primary" />
         PantryPilot
       </button>
       <div className="flex gap-1">
-        {(["home", "ask", "inbox"] as const).map((view) => (
-          <button
-            key={view}
-            onClick={() => onViewChange(view)}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded-lg transition-colors capitalize",
-              activeView === view
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            )}
-          >
-            {view === "ask" ? "Ask PantryPilot" : view}
-          </button>
-        ))}
+        <button
+          onClick={onHomeClick}
+          className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted"
+        >
+          Home
+        </button>
+        <button
+          onClick={onGenerateClick}
+          className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          Generate Recipe
+        </button>
       </div>
     </nav>
   );
