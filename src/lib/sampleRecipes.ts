@@ -76,7 +76,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Thai Basil Stir-Fry",
     description: "A quick, fiery stir-fry with ground chicken, Thai basil, and chili. Bold flavors in 15 minutes.",
-    image: "https://images.unsplash.com/photo-1569058242567-93de6f36f8eb?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600&h=400&fit=crop",
     category: "Quick & Easy",
     servings: 2,
     prepTime: "5 min",
@@ -112,7 +112,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Avocado & Black Bean Bowl",
     description: "A vibrant, plant-powered bowl loaded with black beans, avocado, corn, and a zesty lime dressing.",
-    image: "https://images.unsplash.com/photo-1543339308-d595c4f5c5e7?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
     category: "Vegan",
     servings: 2,
     prepTime: "10 min",
@@ -372,7 +372,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Chicken Pot Pie",
     description: "Flaky golden crust filled with tender chicken, vegetables, and a rich creamy sauce.",
-    image: "https://images.unsplash.com/photo-1621532455591-12a882b86c04?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=600&h=400&fit=crop",
     category: "Comfort Food",
     servings: 6,
     prepTime: "20 min",
@@ -566,7 +566,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Caprese Stuffed Portobello",
     description: "Juicy portobello mushrooms stuffed with fresh mozzarella, tomatoes, basil, and a balsamic reduction.",
-    image: "https://images.unsplash.com/photo-1614961909013-e61415aaef88?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=600&h=400&fit=crop",
     category: "Vegetarian",
     servings: 2,
     prepTime: "10 min",
@@ -592,7 +592,7 @@ export const sampleRecipes: (Recipe & { image: string; category: string })[] = [
   {
     name: "Spinach & Ricotta Stuffed Shells",
     description: "Jumbo pasta shells loaded with creamy ricotta and spinach, baked in marinara sauce.",
-    image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=600&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1587740908075-9e245070dfaa?w=600&h=400&fit=crop",
     category: "Vegetarian",
     servings: 4,
     prepTime: "20 min",
