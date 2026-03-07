@@ -26,11 +26,11 @@ const Navbar = ({ onHomeClick, onBrowseClick, onGenerateClick }: NavbarProps) =>
         <button onClick={onBrowseClick} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted">
           Browse
         </button>
-        <button onClick={onGenerateClick} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted">
-          Generate
-        </button>
-        <button onClick={() => nav("/fitness")} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-primary text-primary-foreground hover:bg-primary/90">
+        <button onClick={() => nav("/fitness")} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted">
           Fitness
+        </button>
+        <button onClick={onGenerateClick} className="px-4 py-2 text-sm font-medium rounded-lg transition-colors bg-primary text-primary-foreground hover:bg-primary/90">
+          Generate Recipe
         </button>
       </div>
     </nav>
