@@ -1,12 +1,21 @@
 import { useState } from "react";
-import { Clock, Flame, DollarSign, Users, ArrowRight, X, Plus, Tag, BookOpen, Loader2 } from "lucide-react";
+import { Clock, Flame, DollarSign, Users, ArrowRight, X, Plus, Tag, BookOpen, Loader2, ShieldCheck, Wheat, MilkOff, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { sampleRecipes } from "@/lib/sampleRecipes";
 import type { Recipe } from "@/lib/types";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
 
 type FullRecipe = Recipe & { image: string; category: string };
+
+interface Alternative {
+  dietLabel: string;
+  name: string;
+  description: string;
+  keySwaps: string[];
+  nutrition: { calories: number; protein: string; carbs: string; fat: string };
+}
 
 interface RecipeDetailContentProps {
   recipe: FullRecipe;
