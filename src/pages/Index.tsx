@@ -19,39 +19,41 @@ const Index = () => {
   return (
     <div className="relative flex min-h-screen flex-col">
       <CursorSpotlight />
-      <Navbar
-        onHomeClick={() => setView("home")}
-        onBrowseClick={() => setView("browse")}
-        onGenerateClick={() => setView("generate")}
-      />
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <Navbar
+          onHomeClick={() => setView("home")}
+          onBrowseClick={() => setView("browse")}
+          onGenerateClick={() => setView("generate")}
+        />
 
-      {view === "home" && (
-        <main className="flex-1">
-          <HeroSection onGetStarted={() => setView("generate")} onBrowse={() => setView("browse")} />
-        </main>
-      )}
+        {view === "home" && (
+          <main className="flex-1">
+            <HeroSection onGetStarted={() => setView("generate")} onBrowse={() => setView("browse")} />
+          </main>
+        )}
 
-      {view === "browse" && (
-        <main className="flex-1 px-4 py-10 sm:px-6">
-          <RecipeBrowse onGenerateClick={() => setView("generate")} />
-        </main>
-      )}
+        {view === "browse" && (
+          <main className="flex-1 px-4 py-10 sm:px-6">
+            <RecipeBrowse onGenerateClick={() => setView("generate")} />
+          </main>
+        )}
 
-      {view === "generate" && (
-        <main className="flex-1 px-4 py-10 sm:px-6">
-          <RecipeGenerator onRecipesGenerated={handleRecipesGenerated} />
-        </main>
-      )}
+        {view === "generate" && (
+          <main className="flex-1 px-4 py-10 sm:px-6">
+            <RecipeGenerator onRecipesGenerated={handleRecipesGenerated} />
+          </main>
+        )}
 
-      {view === "results" && recipes.length > 0 && (
-        <main className="flex-1 px-4 py-10 sm:px-6">
-          <RecipeResults recipes={recipes} onBack={() => setView("generate")} />
-        </main>
-      )}
+        {view === "results" && recipes.length > 0 && (
+          <main className="flex-1 px-4 py-10 sm:px-6">
+            <RecipeResults recipes={recipes} onBack={() => setView("generate")} />
+          </main>
+        )}
 
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        PantryPilot — simple / fast / healthy
-      </footer>
+        <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+          PantryPilot — simple / fast / healthy
+        </footer>
+      </div>
     </div>
   );
 };

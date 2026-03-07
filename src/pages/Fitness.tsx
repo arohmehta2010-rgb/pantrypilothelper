@@ -34,6 +34,7 @@ export default function Fitness() {
   return (
     <div className="relative flex min-h-screen flex-col">
       <CursorSpotlight />
+      <div className="relative z-10 flex min-h-screen flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
         <button onClick={() => nav("/")} className="flex items-center gap-2 text-xl font-display font-semibold text-foreground tracking-tight hover:text-primary transition">
@@ -117,6 +118,7 @@ export default function Fitness() {
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
         PantryPilot — simple / fast / healthy
       </footer>
+      </div>
     </div>
   );
 }
