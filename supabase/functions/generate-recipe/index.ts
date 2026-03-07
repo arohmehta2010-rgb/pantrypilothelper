@@ -19,44 +19,21 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a professional chef and nutritionist. Generate a single recipe based on the user's dietary restrictions, food preferences, and available ingredients.
+    const systemPrompt = `You are a professional chef and nutritionist. Generate exactly 5 different recipes based on the user's dietary restrictions, food preferences, and available ingredients.
 
-You MUST respond with a valid JSON object (no markdown, no code blocks, just pure JSON) with this exact structure:
-{
-  "name": "Recipe Name",
-  "description": "A brief appetizing description",
-  "servings": 4,
-  "prepTime": "15 min",
-  "cookTime": "30 min",
-  "estimatedCost": "$8-12",
-  "ingredients": [
-    { "item": "ingredient name", "amount": "1 cup" }
-  ],
-  "steps": [
-    "Step 1 description",
-    "Step 2 description"
-  ],
-  "nutrition": {
-    "calories": 350,
-    "protein": "25g",
-    "carbs": "40g",
-    "fat": "12g",
-    "fiber": "6g",
-    "sugar": "8g",
-    "sodium": "450mg"
-  },
-  "tips": "Optional helpful cooking tips"
-}
+Return the recipes by calling the provided tool function.
 
 Rules:
-- Primarily use the ingredients provided, but you may suggest 1-3 common pantry staples if needed
+- Primarily use the ingredients provided, but you may suggest 1-3 common pantry staples per recipe if needed
 - Respect ALL dietary restrictions strictly
+- Each recipe should be distinctly different (different cuisines, cooking methods, or styles)
 - Provide realistic nutrition estimates per serving
 - Provide a realistic cost estimate in USD
 - Steps should be clear and detailed enough for a beginner
-- Keep the recipe practical and achievable in a home kitchen`;
+- Keep recipes practical and achievable in a home kitchen
+- For imageQuery, provide 2-3 descriptive words for the finished dish (e.g. "chicken stir fry", "pasta carbonara", "vegan buddha bowl") — this will be used to find a matching photo`;
 
-    const userPrompt = `Generate a recipe with these constraints:
+    const userPrompt = `Generate 5 recipes with these constraints:
 - Dietary restrictions: ${diet.join(", ")}
 - Food preferences: ${preferences.length > 0 ? preferences.join(", ") : "None specified"}
 - Available ingredients: ${ingredients.join(", ")}`;
@@ -75,6 +52,69 @@ Rules:
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "return_recipes",
+                description: "Return 5 generated recipes",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    recipes: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string" },
+                          description: { type: "string" },
+                          imageQuery: { type: "string", description: "2-3 word search term for a photo of this dish" },
+                          category: { type: "string", description: "e.g. High Protein, Comfort Food, Quick & Easy, Healthy, Vegan, Vegetarian" },
+                          servings: { type: "number" },
+                          prepTime: { type: "string" },
+                          cookTime: { type: "string" },
+                          estimatedCost: { type: "string" },
+                          ingredients: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                item: { type: "string" },
+                                amount: { type: "string" },
+                              },
+                              required: ["item", "amount"],
+                              additionalProperties: false,
+                            },
+                          },
+                          steps: { type: "array", items: { type: "string" } },
+                          nutrition: {
+                            type: "object",
+                            properties: {
+                              calories: { type: "number" },
+                              protein: { type: "string" },
+                              carbs: { type: "string" },
+                              fat: { type: "string" },
+                              fiber: { type: "string" },
+                              sugar: { type: "string" },
+                              sodium: { type: "string" },
+                            },
+                            required: ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"],
+                            additionalProperties: false,
+                          },
+                          tips: { type: "string" },
+                        },
+                        required: ["name", "description", "imageQuery", "category", "servings", "prepTime", "cookTime", "estimatedCost", "ingredients", "steps", "nutrition"],
+                        additionalProperties: false,
+                      },
+                    },
+                  },
+                  required: ["recipes"],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: "function", function: { name: "return_recipes" } },
         }),
       }
     );
@@ -98,23 +138,26 @@ Rules:
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      throw new Error("No content in AI response");
+    
+    // Extract from tool call
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall) {
+      // Fallback: try content
+      const content = data.choices?.[0]?.message?.content;
+      if (content) {
+        const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+        const recipes = parsed.recipes || [parsed];
+        return new Response(JSON.stringify({ recipes }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      throw new Error("No tool call or content in AI response");
     }
 
-    // Parse the JSON from the response, handling potential markdown code blocks
-    let recipeJson;
-    try {
-      const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      recipeJson = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error("Failed to parse recipe JSON:", content);
-      throw new Error("Failed to parse recipe from AI response");
-    }
+    const args = JSON.parse(toolCall.function.arguments);
 
-    return new Response(JSON.stringify({ recipe: recipeJson }), {
+    return new Response(JSON.stringify({ recipes: args.recipes }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

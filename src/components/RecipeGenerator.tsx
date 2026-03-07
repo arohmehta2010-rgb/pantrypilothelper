@@ -43,10 +43,10 @@ const popularityOrder = [
 ];
 
 interface RecipeGeneratorProps {
-  onRecipeGenerated: (recipe: Recipe) => void;
+  onRecipesGenerated: (recipes: Recipe[]) => void;
 }
 
-const RecipeGenerator = ({ onRecipeGenerated }: RecipeGeneratorProps) => {
+const RecipeGenerator = ({ onRecipesGenerated }: RecipeGeneratorProps) => {
   const [diet, setDiet] = useState<string[]>([]);
   const [preferences, setPreferences] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState("");
@@ -160,7 +160,7 @@ const RecipeGenerator = ({ onRecipeGenerated }: RecipeGeneratorProps) => {
         return;
       }
 
-      onRecipeGenerated(data.recipe);
+      onRecipesGenerated(data.recipes || [data.recipe].filter(Boolean));
     } catch (err) {
       console.error("Error:", err);
       toast.error("Something went wrong. Please try again.");
