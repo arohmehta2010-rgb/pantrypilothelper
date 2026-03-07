@@ -13,7 +13,7 @@ export default {
       },
     },
     fontFamily: {
-      display: ['"Nicholas"', 'Georgia', 'serif'],
+      display: ['"Exclusive Editorial"', 'Georgia', 'serif'],
       body: ['"DM Sans"', 'system-ui', 'sans-serif'],
     },
     extend: {
