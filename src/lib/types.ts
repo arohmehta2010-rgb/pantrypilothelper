@@ -17,4 +17,6 @@ export interface Recipe {
     sodium: string;
   };
   tips?: string;
+  imageQuery?: string;
+  category?: string;
 }
