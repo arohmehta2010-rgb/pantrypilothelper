@@ -40,7 +40,7 @@ const HeroSection = ({ onGetStarted, onBrowse }: HeroSectionProps) => {
             <img
               src={heroImage}
               alt="PantryPilot — ingredients, recipes, and meal planning"
-              className="w-full max-w-lg h-auto object-cover rounded-2xl shadow-lg border border-border"
+              className="w-full max-w-lg aspect-video object-cover rounded-2xl shadow-lg border border-border"
             />
           </div>
           <h1 className="text-4xl sm:text-6xl font-display font-semibold tracking-tight text-foreground leading-tight">
