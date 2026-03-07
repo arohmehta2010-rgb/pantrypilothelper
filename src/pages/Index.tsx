@@ -19,6 +19,7 @@ const Index = () => {
   return (
     <div className="relative flex min-h-screen flex-col">
       <CursorSpotlight />
+      <div className="relative z-10 flex min-h-screen flex-col">
       <Navbar
         onHomeClick={() => setView("home")}
         onBrowseClick={() => setView("browse")}
