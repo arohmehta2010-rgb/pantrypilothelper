@@ -3,16 +3,16 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import RecipeBrowse from "@/components/RecipeBrowse";
 import RecipeGenerator from "@/components/RecipeGenerator";
-import RecipeResult from "@/components/RecipeResult";
+import RecipeResults from "@/components/RecipeResults";
 import type { Recipe } from "@/lib/types";
 
 const Index = () => {
-  const [view, setView] = useState<"home" | "browse" | "generate" | "result">("home");
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [view, setView] = useState<"home" | "browse" | "generate" | "results">("home");
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
-  const handleRecipeGenerated = (r: Recipe) => {
-    setRecipe(r);
-    setView("result");
+  const handleRecipesGenerated = (r: Recipe[]) => {
+    setRecipes(r);
+    setView("results");
   };
 
   return (
@@ -37,13 +37,13 @@ const Index = () => {
 
       {view === "generate" && (
         <main className="flex-1 px-4 py-10 sm:px-6">
-          <RecipeGenerator onRecipeGenerated={handleRecipeGenerated} />
+          <RecipeGenerator onRecipesGenerated={handleRecipesGenerated} />
         </main>
       )}
 
-      {view === "result" && recipe && (
+      {view === "results" && recipes.length > 0 && (
         <main className="flex-1 px-4 py-10 sm:px-6">
-          <RecipeResult recipe={recipe} onBack={() => setView("generate")} />
+          <RecipeResults recipes={recipes} onBack={() => setView("generate")} />
         </main>
       )}
 
