@@ -1,20 +1,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, DollarSign, Users, Flame, ArrowRight, X, Sparkles } from "lucide-react";
+import { ArrowLeft, Clock, DollarSign, Flame, ArrowRight, X, Sparkles } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import RecipeDetailContent from "@/components/RecipeDetailContent";
-import { assignRecipeImages } from "@/lib/recipeImages";
+import { getRecipeImage } from "@/lib/recipeImages";
+
+type RecipeWithImage = Recipe & { image?: string };
+
+const fallbackImage = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop";
 
 interface RecipeResultsProps {
-  recipes: Recipe[];
+  recipes: RecipeWithImage[];
   onBack: () => void;
 }
 
 const RecipeResults = ({ recipes, onBack }: RecipeResultsProps) => {
   const [selectedRecipe, setSelectedRecipe] = useState<(Recipe & { image: string; category: string }) | null>(null);
 
-  // Assign unique images to all recipes at once (deduplication)
-  const images = assignRecipeImages(recipes);
+  // Use Pexels image from API if available, otherwise fallback to local matching
+  const usedUrls = new Set<string>();
+  const getImage = (recipe: RecipeWithImage): string => {
+    if (recipe.image) return recipe.image;
+    return getRecipeImage(recipe, usedUrls);
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -36,7 +44,7 @@ const RecipeResults = ({ recipes, onBack }: RecipeResultsProps) => {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
         {recipes.map((recipe, i) => {
-          const image = images[i];
+          const image = getImage(recipe);
           return (
             <div
               key={i}
@@ -49,6 +57,7 @@ const RecipeResults = ({ recipes, onBack }: RecipeResultsProps) => {
                   alt={recipe.name}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
+                  onError={(e) => { (e.target as HTMLImageElement).src = fallbackImage; }}
                 />
                 {recipe.category && (
                   <span className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-xs font-medium text-foreground px-2.5 py-1 rounded-full border border-border">
@@ -104,7 +113,6 @@ const RecipeResults = ({ recipes, onBack }: RecipeResultsProps) => {
         </Button>
       </div>
 
-      {/* Detail modal */}
       {selectedRecipe && (
         <RecipeDetailModal recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} />
       )}
