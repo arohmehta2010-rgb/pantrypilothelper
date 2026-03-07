@@ -1,18 +1,21 @@
 import { cn } from "@/lib/utils";
 
 interface NavbarProps {
-  activeView: "submit" | "inbox";
-  onViewChange: (view: "submit" | "inbox") => void;
+  activeView: "home" | "ask" | "inbox";
+  onViewChange: (view: "home" | "ask" | "inbox") => void;
 }
 
 const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
-      <a href="#" className="text-xl font-display font-semibold text-foreground tracking-tight">
+      <button
+        onClick={() => onViewChange("home")}
+        className="text-xl font-display font-semibold text-foreground tracking-tight hover:opacity-80 transition"
+      >
         PantryPilot
-      </a>
+      </button>
       <div className="flex gap-1">
-        {(["submit", "inbox"] as const).map((view) => (
+        {(["home", "ask", "inbox"] as const).map((view) => (
           <button
             key={view}
             onClick={() => onViewChange(view)}
@@ -23,7 +26,7 @@ const Navbar = ({ activeView, onViewChange }: NavbarProps) => {
                 : "text-muted-foreground hover:bg-muted"
             )}
           >
-            {view}
+            {view === "ask" ? "Ask PantryPilot" : view}
           </button>
         ))}
       </div>
