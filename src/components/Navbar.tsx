@@ -3,10 +3,11 @@ import { ChefHat } from "lucide-react";
 
 interface NavbarProps {
   onHomeClick: () => void;
+  onBrowseClick: () => void;
   onGenerateClick: () => void;
 }
 
-const Navbar = ({ onHomeClick, onGenerateClick }: NavbarProps) => {
+const Navbar = ({ onHomeClick, onBrowseClick, onGenerateClick }: NavbarProps) => {
   return (
     <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
       <button
@@ -22,6 +23,12 @@ const Navbar = ({ onHomeClick, onGenerateClick }: NavbarProps) => {
           className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted"
         >
           Home
+        </button>
+        <button
+          onClick={onBrowseClick}
+          className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-muted-foreground hover:bg-muted"
+        >
+          Browse
         </button>
         <button
           onClick={onGenerateClick}

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import RecipeBrowse from "@/components/RecipeBrowse";
 import RecipeGenerator from "@/components/RecipeGenerator";
 import RecipeResult from "@/components/RecipeResult";
 import type { Recipe } from "@/lib/types";
 
 const Index = () => {
-  const [view, setView] = useState<"home" | "generate" | "result">("home");
+  const [view, setView] = useState<"home" | "browse" | "generate" | "result">("home");
   const [recipe, setRecipe] = useState<Recipe | null>(null);
 
   const handleRecipeGenerated = (r: Recipe) => {
@@ -16,11 +17,21 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar onHomeClick={() => setView("home")} onGenerateClick={() => setView("generate")} />
+      <Navbar
+        onHomeClick={() => setView("home")}
+        onBrowseClick={() => setView("browse")}
+        onGenerateClick={() => setView("generate")}
+      />
 
       {view === "home" && (
         <main className="flex-1">
-          <HeroSection onGetStarted={() => setView("generate")} />
+          <HeroSection onGetStarted={() => setView("generate")} onBrowse={() => setView("browse")} />
+        </main>
+      )}
+
+      {view === "browse" && (
+        <main className="flex-1 px-4 py-10 sm:px-6">
+          <RecipeBrowse onGenerateClick={() => setView("generate")} />
         </main>
       )}
 
