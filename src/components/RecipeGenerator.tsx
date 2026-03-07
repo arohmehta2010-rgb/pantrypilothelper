@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, ChefHat, X, Clock, DollarSign, Flame, ArrowRight, Users, Sparkles } from "lucide-react";
+import { Loader2, ChefHat, X, Clock, DollarSign, Flame, ArrowRight, Users, Sparkles, Plus } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { sampleRecipes } from "@/lib/sampleRecipes";
