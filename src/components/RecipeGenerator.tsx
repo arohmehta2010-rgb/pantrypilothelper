@@ -12,6 +12,7 @@ type FullRecipe = Recipe & { image: string; category: string };
 const dietOptions = [
   "No Restrictions", "Vegetarian", "Vegan", "Keto", "Paleo",
   "Gluten-Free", "Dairy-Free", "Low-Carb", "High-Protein", "Mediterranean",
+  "Halal", "Kosher", "Pescatarian", "Hindu (No Beef)", "Jain",
 ];
 
 const preferenceOptions = [
