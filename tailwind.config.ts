@@ -13,7 +13,7 @@ export default {
       },
     },
     fontFamily: {
-      display: ['"Instrument Serif"', 'Georgia', 'serif'],
+      display: ['"Nicholas"', 'Georgia', 'serif'],
       body: ['"DM Sans"', 'system-ui', 'sans-serif'],
     },
     extend: {
