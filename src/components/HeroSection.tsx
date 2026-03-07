@@ -30,7 +30,7 @@ const features = [
   },
 ];
 
-const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
+const HeroSection = ({ onGetStarted, onBrowse }: HeroSectionProps) => {
   return (
     <div className="space-y-0">
       {/* Hero */}
@@ -50,13 +50,25 @@ const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Enter your dietary needs, food preferences, and available ingredients — PantryPilot generates personalized recipes with full nutrition facts, steps, and cost estimates.
           </p>
-          <Button
-            size="lg"
-            onClick={onGetStarted}
-            className="text-base font-semibold px-10 py-6 text-lg"
-          >
-            Get Started — It's Free
-          </Button>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button
+              size="lg"
+              onClick={onGetStarted}
+              className="text-base font-semibold px-10 py-6 text-lg"
+            >
+              Get Started — It's Free
+            </Button>
+            {onBrowse && (
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={onBrowse}
+                className="text-base font-semibold px-10 py-6 text-lg"
+              >
+                Browse Recipes
+              </Button>
+            )}
+          </div>
         </div>
       </section>
 
