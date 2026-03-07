@@ -40,7 +40,7 @@ const HeroSection = ({ onGetStarted, onBrowse }: HeroSectionProps) => {
             <img
               src={logoImage}
               alt="PantryPilot — Your Smart Meal Plan Helper"
-              className="w-48 sm:w-64 object-contain"
+              className="w-80 sm:w-96 object-contain"
             />
           </div>
           <h1 className="text-4xl sm:text-6xl font-display font-semibold tracking-tight text-foreground leading-tight">
