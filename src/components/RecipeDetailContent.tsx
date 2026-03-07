@@ -31,6 +31,9 @@ const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailCo
   const [tutorialContent, setTutorialContent] = useState("");
   const [isTutorialLoading, setIsTutorialLoading] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [alternatives, setAlternatives] = useState<Alternative[]>([]);
+  const [isAlternativesLoading, setIsAlternativesLoading] = useState(false);
+  const [showAlternatives, setShowAlternatives] = useState(false);
 
   const addTag = () => {
     const trimmed = tagInput.trim();
