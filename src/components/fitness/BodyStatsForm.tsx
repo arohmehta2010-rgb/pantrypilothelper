@@ -6,13 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { BodyStats } from "@/lib/fitnessTypes";
 import { calculateBMI, getBMICategory, calculateTDEE } from "@/lib/fitnessTypes";
 import { Save, Activity } from "lucide-react";
+import type { UnitSystem } from "@/hooks/useUnitSystem";
+import { kgToLbs, lbsToKg, cmToIn, inToCm, cmToFtIn, ftInToCm, weightLabel, lengthLabel } from "@/hooks/useUnitSystem";
 
 interface Props {
   initial: BodyStats | null;
   onSave: (s: BodyStats) => void;
+  unit: UnitSystem;
 }
 
-export default function BodyStatsForm({ initial, onSave }: Props) {
+export default function BodyStatsForm({ initial, onSave, unit }: Props) {
+  // Internal state is always metric
   const [form, setForm] = useState<BodyStats>(initial ?? {
     age: 25, gender: "male", heightCm: 175, weightKg: 80,
     activityLevel: "moderate", bodyFatPercent: undefined, muscleMassKg: undefined,
@@ -23,6 +27,38 @@ export default function BodyStatsForm({ initial, onSave }: Props) {
   const tdee = calculateTDEE(form);
 
   const update = (key: keyof BodyStats, val: string | number) => setForm(p => ({ ...p, [key]: val }));
+
+  // Display values (converted from metric)
+  const displayWeight = unit === "imperial" ? kgToLbs(form.weightKg) : form.weightKg;
+  const displayMuscleMass = form.muscleMassKg != null ? (unit === "imperial" ? kgToLbs(form.muscleMassKg) : form.muscleMassKg) : "";
+  const displayWaist = form.waistCm != null ? (unit === "imperial" ? cmToIn(form.waistCm) : form.waistCm) : "";
+  const displayHip = form.hipCm != null ? (unit === "imperial" ? cmToIn(form.hipCm) : form.hipCm) : "";
+
+  const heightFtIn = cmToFtIn(form.heightCm);
+
+  const handleWeightChange = (val: string) => {
+    const n = +val;
+    if (!val) return;
+    update("weightKg", unit === "imperial" ? lbsToKg(n) : n);
+  };
+
+  const handleHeightChange = (val: string) => {
+    const n = +val;
+    if (!val) return;
+    update("heightCm", unit === "imperial" ? inToCm(n) : n);
+  };
+
+  const handleHeightFtChange = (ft: string, inches: string) => {
+    update("heightCm", ftInToCm(+ft || 0, +inches || 0));
+  };
+
+  const handleOptionalWeight = (key: "muscleMassKg", val: string) => {
+    update(key, val ? (unit === "imperial" ? lbsToKg(+val) : +val) : undefined as any);
+  };
+
+  const handleOptionalLength = (key: "waistCm" | "hipCm", val: string) => {
+    update(key, val ? (unit === "imperial" ? inToCm(+val) : +val) : undefined as any);
+  };
 
   return (
     <div className="space-y-6">
@@ -43,12 +79,19 @@ export default function BodyStatsForm({ initial, onSave }: Props) {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Height (cm)</Label>
-          <Input type="number" value={form.heightCm} onChange={e => update("heightCm", +e.target.value)} />
+          <Label>Height ({unit === "imperial" ? "ft/in" : "cm"})</Label>
+          {unit === "imperial" ? (
+            <div className="flex gap-2">
+              <Input type="number" value={heightFtIn.ft} onChange={e => handleHeightFtChange(e.target.value, String(heightFtIn.in))} placeholder="ft" className="w-1/2" />
+              <Input type="number" value={heightFtIn.in} onChange={e => handleHeightFtChange(String(heightFtIn.ft), e.target.value)} placeholder="in" className="w-1/2" />
+            </div>
+          ) : (
+            <Input type="number" value={form.heightCm} onChange={e => handleHeightChange(e.target.value)} />
+          )}
         </div>
         <div className="space-y-2">
-          <Label>Weight (kg)</Label>
-          <Input type="number" value={form.weightKg} onChange={e => update("weightKg", +e.target.value)} />
+          <Label>Weight ({weightLabel(unit)})</Label>
+          <Input type="number" value={displayWeight} onChange={e => handleWeightChange(e.target.value)} />
         </div>
       </div>
 
@@ -74,16 +117,16 @@ export default function BodyStatsForm({ initial, onSave }: Props) {
             <Input type="number" placeholder="e.g. 20" value={form.bodyFatPercent ?? ""} onChange={e => update("bodyFatPercent", e.target.value ? +e.target.value : undefined as any)} />
           </div>
           <div className="space-y-2">
-            <Label>Muscle Mass (kg)</Label>
-            <Input type="number" placeholder="e.g. 35" value={form.muscleMassKg ?? ""} onChange={e => update("muscleMassKg", e.target.value ? +e.target.value : undefined as any)} />
+            <Label>Muscle Mass ({weightLabel(unit)})</Label>
+            <Input type="number" placeholder={unit === "imperial" ? "e.g. 77" : "e.g. 35"} value={displayMuscleMass} onChange={e => handleOptionalWeight("muscleMassKg", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Waist (cm)</Label>
-            <Input type="number" placeholder="e.g. 85" value={form.waistCm ?? ""} onChange={e => update("waistCm", e.target.value ? +e.target.value : undefined as any)} />
+            <Label>Waist ({lengthLabel(unit)})</Label>
+            <Input type="number" placeholder={unit === "imperial" ? "e.g. 33" : "e.g. 85"} value={displayWaist} onChange={e => handleOptionalLength("waistCm", e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Hip (cm)</Label>
-            <Input type="number" placeholder="e.g. 95" value={form.hipCm ?? ""} onChange={e => update("hipCm", e.target.value ? +e.target.value : undefined as any)} />
+            <Label>Hip ({lengthLabel(unit)})</Label>
+            <Input type="number" placeholder={unit === "imperial" ? "e.g. 37" : "e.g. 95"} value={displayHip} onChange={e => handleOptionalLength("hipCm", e.target.value)} />
           </div>
         </div>
       </div>

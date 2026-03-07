@@ -6,14 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { WeightGoal, BodyStats, DailyTargets } from "@/lib/fitnessTypes";
 import { calculateTDEE, calculateDailyTargets } from "@/lib/fitnessTypes";
 import { Target, TrendingDown } from "lucide-react";
+import type { UnitSystem } from "@/hooks/useUnitSystem";
+import { kgToLbs, lbsToKg, weightLabel } from "@/hooks/useUnitSystem";
 
 interface Props {
   bodyStats: BodyStats | null;
   initial: WeightGoal | null;
   onSave: (g: WeightGoal) => void;
+  unit: UnitSystem;
 }
 
-export default function WeightGoalForm({ bodyStats, initial, onSave }: Props) {
+export default function WeightGoalForm({ bodyStats, initial, onSave, unit }: Props) {
+  // Internal state always in metric (kg)
   const [form, setForm] = useState<WeightGoal>(initial ?? {
     currentWeightKg: bodyStats?.weightKg ?? 80,
     targetWeightKg: bodyStats ? bodyStats.weightKg - 10 : 70,
@@ -24,16 +28,47 @@ export default function WeightGoalForm({ bodyStats, initial, onSave }: Props) {
   const targets: DailyTargets = calculateDailyTargets(tdee, form);
   const weeksToGoal = form.weeklyGoalKg > 0 ? Math.ceil((form.currentWeightKg - form.targetWeightKg) / form.weeklyGoalKg) : 0;
 
+  const dispCurrent = unit === "imperial" ? kgToLbs(form.currentWeightKg) : form.currentWeightKg;
+  const dispTarget = unit === "imperial" ? kgToLbs(form.targetWeightKg) : form.targetWeightKg;
+
+  const weeklyOptions = unit === "imperial"
+    ? [
+        { value: "0.25", label: "0.5 lbs/week (slow & steady)" },
+        { value: "0.5", label: "1 lb/week (recommended)" },
+        { value: "0.75", label: "1.5 lbs/week (moderate)" },
+        { value: "1", label: "2 lbs/week (aggressive)" },
+      ]
+    : [
+        { value: "0.25", label: "0.25 kg/week (slow & steady)" },
+        { value: "0.5", label: "0.5 kg/week (recommended)" },
+        { value: "0.75", label: "0.75 kg/week (moderate)" },
+        { value: "1", label: "1 kg/week (aggressive)" },
+      ];
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Current Weight (kg)</Label>
-          <Input type="number" value={form.currentWeightKg} onChange={e => setForm(p => ({ ...p, currentWeightKg: +e.target.value }))} />
+          <Label>Current Weight ({weightLabel(unit)})</Label>
+          <Input
+            type="number"
+            value={dispCurrent}
+            onChange={e => {
+              const v = +e.target.value;
+              setForm(p => ({ ...p, currentWeightKg: unit === "imperial" ? lbsToKg(v) : v }));
+            }}
+          />
         </div>
         <div className="space-y-2">
-          <Label>Target Weight (kg)</Label>
-          <Input type="number" value={form.targetWeightKg} onChange={e => setForm(p => ({ ...p, targetWeightKg: +e.target.value }))} />
+          <Label>Target Weight ({weightLabel(unit)})</Label>
+          <Input
+            type="number"
+            value={dispTarget}
+            onChange={e => {
+              const v = +e.target.value;
+              setForm(p => ({ ...p, targetWeightKg: unit === "imperial" ? lbsToKg(v) : v }));
+            }}
+          />
         </div>
       </div>
 
@@ -42,10 +77,9 @@ export default function WeightGoalForm({ bodyStats, initial, onSave }: Props) {
         <Select value={String(form.weeklyGoalKg)} onValueChange={v => setForm(p => ({ ...p, weeklyGoalKg: +v }))}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="0.25">0.25 kg/week (slow & steady)</SelectItem>
-            <SelectItem value="0.5">0.5 kg/week (recommended)</SelectItem>
-            <SelectItem value="0.75">0.75 kg/week (moderate)</SelectItem>
-            <SelectItem value="1">1 kg/week (aggressive)</SelectItem>
+            {weeklyOptions.map(o => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

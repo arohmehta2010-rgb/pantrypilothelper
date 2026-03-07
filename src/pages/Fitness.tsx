@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChefHat, User, Target, Activity, Utensils, Calendar } from "lucide-react";
 import { useFitnessStorage } from "@/hooks/useFitnessStorage";
+import { useUnitSystem } from "@/hooks/useUnitSystem";
 import { calculateTDEE, calculateDailyTargets } from "@/lib/fitnessTypes";
 import BodyStatsForm from "@/components/fitness/BodyStatsForm";
 import WeightGoalForm from "@/components/fitness/WeightGoalForm";
@@ -24,6 +25,7 @@ export default function Fitness() {
   const nav = useNavigate();
   const [tab, setTab] = useState<Tab>("stats");
   const store = useFitnessStorage();
+  const { unit, setUnit } = useUnitSystem();
 
   const tdee = store.bodyStats ? calculateTDEE(store.bodyStats) : null;
   const dailyTargets = tdee && store.weightGoal ? calculateDailyTargets(tdee, store.weightGoal) : null;
@@ -52,6 +54,28 @@ export default function Fitness() {
             </p>
           </header>
 
+          {/* Unit toggle */}
+          <div className="flex justify-center">
+            <div className="inline-flex rounded-lg border border-border bg-secondary p-0.5">
+              <button
+                onClick={() => setUnit("metric")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  unit === "metric" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Metric (kg, cm)
+              </button>
+              <button
+                onClick={() => setUnit("imperial")}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  unit === "imperial" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Imperial (lbs, ft)
+              </button>
+            </div>
+          </div>
+
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
             {tabs.map(t => (
@@ -70,13 +94,13 @@ export default function Fitness() {
           {/* Content */}
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
             {tab === "stats" && (
-              <BodyStatsForm initial={store.bodyStats} onSave={s => { store.setBodyStats(s); toast.success("Body stats saved!"); }} />
+              <BodyStatsForm initial={store.bodyStats} onSave={s => { store.setBodyStats(s); toast.success("Body stats saved!"); }} unit={unit} />
             )}
             {tab === "goals" && (
-              <WeightGoalForm bodyStats={store.bodyStats} initial={store.weightGoal} onSave={g => { store.setWeightGoal(g); toast.success("Weight goal set!"); }} />
+              <WeightGoalForm bodyStats={store.bodyStats} initial={store.weightGoal} onSave={g => { store.setWeightGoal(g); toast.success("Weight goal set!"); }} unit={unit} />
             )}
             {tab === "biometrics" && (
-              <BiometricTracker entries={store.biometrics} onAdd={e => { store.addBiometric(e); toast.success("Entry logged!"); }} />
+              <BiometricTracker entries={store.biometrics} onAdd={e => { store.addBiometric(e); toast.success("Entry logged!"); }} unit={unit} />
             )}
             {tab === "nutrition" && (
               <NutritionLogger entries={store.nutritionLog} targets={dailyTargets} onAdd={e => { store.addNutrition(e); toast.success("Meal logged!"); }} onRemove={store.removeNutrition} />
