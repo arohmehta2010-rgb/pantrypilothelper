@@ -1,4 +1,4 @@
-import pantryPilotLogo from "@/assets/pantrypilot-logo.jpg";
+import heroImage from "@/assets/pantrypilot-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { ChefHat, Salad, Clock, DollarSign } from "lucide-react";
 
@@ -38,9 +38,9 @@ const HeroSection = ({ onGetStarted, onBrowse }: HeroSectionProps) => {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="flex justify-center mb-4">
             <img
-              src={pantryPilotLogo}
-              alt="PantryPilot Logo"
-              className="w-40 h-40 sm:w-52 sm:h-52 object-contain rounded-2xl shadow-lg border border-border"
+              src={heroImage}
+              alt="PantryPilot — ingredients, recipes, and meal planning"
+              className="w-full max-w-lg h-auto object-cover rounded-2xl shadow-lg border border-border"
             />
           </div>
           <h1 className="text-4xl sm:text-6xl font-display font-semibold tracking-tight text-foreground leading-tight">
