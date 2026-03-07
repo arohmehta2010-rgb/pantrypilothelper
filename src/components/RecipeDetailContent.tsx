@@ -382,6 +382,95 @@ const RecipeDetailContent = ({ recipe, onClose, onSelectRecipe }: RecipeDetailCo
           </section>
         )}
 
+        {/* Diet & Allergy Alternatives */}
+        <section className="space-y-4 pt-2">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <h3 className="text-lg font-display font-semibold text-foreground whitespace-nowrap flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary" /> Diet & Allergy Alternatives
+            </h3>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <Button
+            onClick={generateAlternatives}
+            variant="outline"
+            className="w-full gap-2 border-primary/30 hover:bg-primary/10"
+            disabled={isAlternativesLoading}
+          >
+            {isAlternativesLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating Alternatives...
+              </>
+            ) : (
+              <>
+                <Wheat className="w-4 h-4 text-primary" />
+                {alternatives.length > 0
+                  ? showAlternatives ? "Hide Alternatives" : "Show Alternatives"
+                  : "Generate Diet & Allergy Alternatives"}
+              </>
+            )}
+          </Button>
+
+          {showAlternatives && isAlternativesLoading && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          )}
+
+          {showAlternatives && alternatives.length > 0 && (
+            <div className="grid sm:grid-cols-2 gap-4 animate-in fade-in-0 slide-in-from-top-2 duration-300">
+              {alternatives.map((alt, i) => {
+                const dietIcons: Record<string, string> = {
+                  "Gluten-Free": "🌾",
+                  "Dairy-Free": "🥛",
+                  "Nut-Free": "🥜",
+                  "Vegan": "🌱",
+                  "Halal": "☪️",
+                  "Kosher": "✡️",
+                };
+                const icon = dietIcons[alt.dietLabel] || "🍽️";
+
+                return (
+                  <div
+                    key={i}
+                    className="rounded-xl border bg-card p-4 space-y-3 hover:border-primary/30 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-lg mr-1.5">{icon}</span>
+                        <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full font-medium">
+                          {alt.dietLabel}
+                        </span>
+                      </div>
+                    </div>
+                    <h4 className="font-display font-semibold text-foreground text-sm">{alt.name}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{alt.description}</p>
+
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Key Swaps</p>
+                      {alt.keySwaps.map((swap, j) => (
+                        <p key={j} className="text-xs text-foreground/80 flex items-start gap-1.5">
+                          <ArrowRight className="w-3 h-3 text-primary shrink-0 mt-0.5" />
+                          {swap}
+                        </p>
+                      ))}
+                    </div>
+
+                    <div className="flex gap-3 pt-1 border-t border-border text-[10px] text-muted-foreground">
+                      <span><Flame className="w-3 h-3 text-primary inline mr-0.5" />{alt.nutrition.calories} kcal</span>
+                      <span>{alt.nutrition.protein} protein</span>
+                      <span>{alt.nutrition.carbs} carbs</span>
+                      <span>{alt.nutrition.fat} fat</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
         {/* Similar Recipes */}
         {similarRecipes.length > 0 && (
           <section className="space-y-4 pt-2">
