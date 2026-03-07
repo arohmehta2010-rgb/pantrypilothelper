@@ -6,6 +6,36 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+async function searchPexelsImage(query: string, pexelsKey: string, usedIds: Set<number>): Promise<string> {
+  try {
+    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query + " food")}&per_page=5&orientation=landscape`;
+    const resp = await fetch(url, {
+      headers: { Authorization: pexelsKey },
+    });
+    if (!resp.ok) {
+      console.error("Pexels API error:", resp.status);
+      return "";
+    }
+    const data = await resp.json();
+    const photos = data.photos || [];
+    // Pick the first photo not already used
+    for (const photo of photos) {
+      if (!usedIds.has(photo.id)) {
+        usedIds.add(photo.id);
+        return photo.src?.medium || photo.src?.small || "";
+      }
+    }
+    // If all are used, return first result anyway
+    if (photos.length > 0) {
+      return photos[0].src?.medium || photos[0].src?.small || "";
+    }
+    return "";
+  } catch (err) {
+    console.error("Pexels search error:", err);
+    return "";
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -22,6 +52,8 @@ serve(async (req) => {
       );
     }
 
+    const PEXELS_API_KEY = Deno.env.get("PEXELS_API_KEY");
+
     const systemPrompt = `You are a professional chef and nutritionist. Generate exactly 5 different recipes based on the user's dietary restrictions, food preferences, available appliances, and available ingredients.
 
 Rules:
@@ -32,7 +64,7 @@ Rules:
 - Provide a realistic cost estimate in USD
 - Steps should be clear and detailed enough for a beginner
 - Keep recipes practical and achievable in a home kitchen
-- For imageQuery, provide a VERY SPECIFIC 3-5 word description of the finished plated dish as it would appear in a food photography photo. Be descriptive about the actual dish appearance, not generic. Examples: "golden crispy chicken thighs rosemary", "creamy mushroom risotto parmesan shavings", "colorful vegan buddha bowl quinoa"
+- For imageQuery, provide a VERY SPECIFIC 2-4 word description of the finished dish as it would look in a food photo. Focus on the main dish name, not ingredients. Examples: "beef ramen bowl", "grilled salmon fillet", "vegetable stir fry", "stuffed bell peppers"
 - The servings field MUST be a plain integer number (e.g. 4), never a string or expression`;
 
     const userPrompt = `Generate 5 recipes with these constraints:
@@ -71,30 +103,24 @@ Rules:
                       items: {
                         type: "object",
                         properties: {
-                          name: { type: "string", description: "Recipe name" },
-                          description: { type: "string", description: "A brief appetizing description" },
-                          imageQuery: { type: "string", description: "3-5 word specific description of the finished plated dish for food photography search" },
-                          category: { type: "string", description: "e.g. High Protein, Comfort Food, Quick & Easy, Healthy, Vegan" },
-                          servings: { type: "integer", description: "Number of servings" },
-                          prepTime: { type: "string", description: "e.g. 15 min" },
-                          cookTime: { type: "string", description: "e.g. 30 min" },
-                          estimatedCost: { type: "string", description: "e.g. $8-12" },
+                          name: { type: "string" },
+                          description: { type: "string" },
+                          imageQuery: { type: "string", description: "2-4 word dish name for photo search" },
+                          category: { type: "string" },
+                          servings: { type: "integer" },
+                          prepTime: { type: "string" },
+                          cookTime: { type: "string" },
+                          estimatedCost: { type: "string" },
                           ingredients: {
                             type: "array",
                             items: {
                               type: "object",
-                              properties: {
-                                item: { type: "string" },
-                                amount: { type: "string" }
-                              },
+                              properties: { item: { type: "string" }, amount: { type: "string" } },
                               required: ["item", "amount"],
                               additionalProperties: false
                             }
                           },
-                          steps: {
-                            type: "array",
-                            items: { type: "string" }
-                          },
+                          steps: { type: "array", items: { type: "string" } },
                           nutrition: {
                             type: "object",
                             properties: {
@@ -109,7 +135,7 @@ Rules:
                             required: ["calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"],
                             additionalProperties: false
                           },
-                          tips: { type: "string", description: "Optional helpful cooking tips" }
+                          tips: { type: "string" }
                         },
                         required: ["name", "description", "imageQuery", "category", "servings", "prepTime", "cookTime", "estimatedCost", "ingredients", "steps", "nutrition"],
                         additionalProperties: false
@@ -130,62 +156,65 @@ Rules:
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Too many requests. Please wait a moment and try again." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Too many requests. Please wait a moment and try again." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI usage limit reached. Please try again later." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "AI usage limit reached. Please try again later." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      return new Response(
-        JSON.stringify({ error: "Failed to generate recipes. Please try again." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Failed to generate recipes. Please try again." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const data = await response.json();
-    
-    // Extract from tool call response
+
+    // Extract from tool call
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
-      // Fallback: try parsing content directly
+    let recipes: any[];
+
+    if (toolCall) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        recipes = parsed.recipes || [parsed];
+      } catch {
+        console.error("Failed to parse tool call:", toolCall.function.arguments?.substring(0, 500));
+        return new Response(JSON.stringify({ error: "Failed to parse recipes. Please try again." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    } else {
+      // Fallback: parse content
       const content = data.choices?.[0]?.message?.content;
       if (content) {
         try {
           const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
           const parsed = JSON.parse(cleaned);
-          return new Response(JSON.stringify({ recipes: parsed.recipes || [parsed] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          recipes = parsed.recipes || [parsed];
         } catch {
-          console.error("Failed to parse fallback content:", content?.substring(0, 500));
+          return new Response(JSON.stringify({ error: "Failed to parse recipes. Please try again." }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
+      } else {
+        return new Response(JSON.stringify({ error: "No response from AI. Please try again." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      console.error("No tool call in AI response:", JSON.stringify(data).substring(0, 500));
-      return new Response(
-        JSON.stringify({ error: "No response from AI. Please try again." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
     }
 
-    let recipesData;
-    try {
-      recipesData = JSON.parse(toolCall.function.arguments);
-    } catch (parseErr) {
-      console.error("Failed to parse tool call arguments:", toolCall.function.arguments?.substring(0, 500));
-      return new Response(
-        JSON.stringify({ error: "Failed to parse recipes. Please try again." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    // Fetch real images from Pexels for each recipe
+    if (PEXELS_API_KEY) {
+      console.log("Fetching Pexels images for", recipes.length, "recipes...");
+      const usedIds = new Set<number>();
+      const imagePromises = recipes.map((recipe) =>
+        searchPexelsImage(recipe.imageQuery || recipe.name, PEXELS_API_KEY, usedIds)
       );
+      const images = await Promise.all(imagePromises);
+      recipes = recipes.map((recipe, i) => ({
+        ...recipe,
+        image: images[i] || "",
+      }));
+      console.log("Pexels images attached.");
     }
-
-    const recipes = recipesData.recipes || [recipesData];
 
     return new Response(JSON.stringify({ recipes }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
