@@ -85,7 +85,7 @@ const HeroSection = ({ onGetStarted, onBrowse }: HeroSectionProps) => {
                 className="rounded-2xl border bg-card p-6 space-y-3 hover:border-primary/50 transition"
               >
                 <div className="rounded-xl bg-accent p-3 w-fit">
-                  <Icon className="w-5 h-5 text-primary" />
+                  <Icon className="w-5 h-5 text-foreground" />
                 </div>
                 <h3 className="font-semibold text-foreground text-sm">{title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
