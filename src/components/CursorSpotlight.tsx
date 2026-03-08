@@ -62,9 +62,9 @@ const CursorSpotlight = () => {
     const { x: sx, y: sy } = scrollRef.current;
     const hovering = visibleRef.current;
 
-    // Offset grid origin by scroll so grid moves with the page
-    const offsetX = -(sx % GRID_SIZE);
-    const offsetY = -(sy % GRID_SIZE);
+    // Offset grid origin by scroll with parallax (grid moves slower than content)
+    const offsetX = -((sx * PARALLAX_FACTOR) % GRID_SIZE);
+    const offsetY = -((sy * PARALLAX_FACTOR) % GRID_SIZE);
 
     // Precompute displaced grid points
     const cols = Math.ceil(w / GRID_SIZE) + 2;
