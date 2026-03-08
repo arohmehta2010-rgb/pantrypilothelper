@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 const GRID_SIZE = 60;
 const EXPAND_RADIUS = 150;
@@ -62,6 +62,7 @@ const CursorSpotlight = () => {
         const baseY = offsetY + r * GRID_SIZE;
         const dx = baseX - mx;
         const dy = baseY - my;
+        const dist = Math.sqrt(dx * dx + dy * dy);
         const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
 
         // Push points away from cursor (directional expansion)
@@ -133,21 +134,6 @@ const CursorSpotlight = () => {
         }
       }
       ctx.stroke();
-    }
-
-    // Intersection dots near cursor
-    if (hovering) {
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const p = points[r][c];
-          if (p.influence > 0) {
-            ctx.beginPath();
-            ctx.fillStyle = `hsla(260, 55%, 70%, ${p.influence * 0.5})`;
-            ctx.arc(p.x, p.y, 1 + p.influence * 2.5, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
     }
 
     animRef.current = requestAnimationFrame(drawGrid);
