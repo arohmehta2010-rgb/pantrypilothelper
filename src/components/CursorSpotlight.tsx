@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 const GRID_SIZE = 60;
 const EXPAND_RADIUS = 150;
@@ -6,40 +6,25 @@ const PUSH_STRENGTH = 8;
 const PARALLAX_FACTOR = 0.4; // Grid scrolls at 40% of page speed for depth
 
 const CursorSpotlight = () => {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const posRef = useRef({ x: 0, y: 0 });
-  const visibleRef = useRef(false);
   const scrollRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
-      const p = { x: e.clientX, y: e.clientY };
-      setPos(p);
-      posRef.current = p;
-      if (!visibleRef.current) {
-        setVisible(true);
-        visibleRef.current = true;
-      }
+      posRef.current = { x: e.clientX, y: e.clientY };
     };
     const handleScroll = () => {
       scrollRef.current = { x: window.scrollX, y: window.scrollY };
     };
-    const handleLeave = () => { setVisible(false); visibleRef.current = false; };
-    const handleEnter = () => { setVisible(true); visibleRef.current = true; };
 
     handleScroll();
     window.addEventListener("mousemove", handleMove);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    document.documentElement.addEventListener("mouseleave", handleLeave);
-    document.documentElement.addEventListener("mouseenter", handleEnter);
     return () => {
       window.removeEventListener("mousemove", handleMove);
       window.removeEventListener("scroll", handleScroll);
-      document.documentElement.removeEventListener("mouseleave", handleLeave);
-      document.documentElement.removeEventListener("mouseenter", handleEnter);
     };
   }, []);
 
@@ -60,7 +45,6 @@ const CursorSpotlight = () => {
 
     const { x: mx, y: my } = posRef.current;
     const { x: sx, y: sy } = scrollRef.current;
-    const hovering = visibleRef.current;
 
     // Offset grid origin by scroll with parallax (grid moves slower than content)
     const offsetX = -((sx * PARALLAX_FACTOR) % GRID_SIZE);
@@ -79,7 +63,7 @@ const CursorSpotlight = () => {
         const dx = baseX - mx;
         const dy = baseY - my;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
+        const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
 
         // Push points away from cursor (directional expansion)
         let px = baseX;
@@ -152,21 +136,6 @@ const CursorSpotlight = () => {
       ctx.stroke();
     }
 
-    // Intersection dots near cursor
-    if (hovering) {
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const p = points[r][c];
-          if (p.influence > 0) {
-            ctx.beginPath();
-            ctx.fillStyle = `hsla(260, 55%, 70%, ${p.influence * 0.5})`;
-            ctx.arc(p.x, p.y, 1 + p.influence * 2.5, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
-    }
-
     animRef.current = requestAnimationFrame(drawGrid);
   }, []);
 
@@ -187,29 +156,10 @@ const CursorSpotlight = () => {
   }, [drawGrid]);
 
   return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="pointer-events-none fixed inset-0 z-0"
-      />
-      <div
-        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
-        style={{ opacity: visible ? 1 : 0 }}
-      >
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 600,
-            height: 600,
-            left: pos.x - 300,
-            top: pos.y - 300,
-            background:
-              "radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%)",
-            transition: "left 0.15s ease-out, top 0.15s ease-out",
-          }}
-        />
-      </div>
-    </>
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none fixed inset-0 z-0"
+    />
   );
 };
 
