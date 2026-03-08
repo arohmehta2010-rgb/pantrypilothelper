@@ -13,30 +13,18 @@ const CursorSpotlight = () => {
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
-      const p = { x: e.clientX, y: e.clientY };
-      setPos(p);
-      posRef.current = p;
-      if (!visibleRef.current) {
-        setVisible(true);
-        visibleRef.current = true;
-      }
+      posRef.current = { x: e.clientX, y: e.clientY };
     };
     const handleScroll = () => {
       scrollRef.current = { x: window.scrollX, y: window.scrollY };
     };
-    const handleLeave = () => { setVisible(false); visibleRef.current = false; };
-    const handleEnter = () => { setVisible(true); visibleRef.current = true; };
 
     handleScroll();
     window.addEventListener("mousemove", handleMove);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    document.documentElement.addEventListener("mouseleave", handleLeave);
-    document.documentElement.addEventListener("mouseenter", handleEnter);
     return () => {
       window.removeEventListener("mousemove", handleMove);
       window.removeEventListener("scroll", handleScroll);
-      document.documentElement.removeEventListener("mouseleave", handleLeave);
-      document.documentElement.removeEventListener("mouseenter", handleEnter);
     };
   }, []);
 
