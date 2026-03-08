@@ -58,18 +58,23 @@ const CursorSpotlight = () => {
     ctx.clearRect(0, 0, w, h);
 
     const { x: mx, y: my } = posRef.current;
+    const { x: sx, y: sy } = scrollRef.current;
     const hovering = visibleRef.current;
 
+    // Offset grid origin by scroll so grid moves with the page
+    const offsetX = -(sx % GRID_SIZE);
+    const offsetY = -(sy % GRID_SIZE);
+
     // Precompute displaced grid points
-    const cols = Math.ceil(w / GRID_SIZE) + 1;
-    const rows = Math.ceil(h / GRID_SIZE) + 1;
+    const cols = Math.ceil(w / GRID_SIZE) + 2;
+    const rows = Math.ceil(h / GRID_SIZE) + 2;
     const points: { x: number; y: number; influence: number }[][] = [];
 
     for (let r = 0; r < rows; r++) {
       points[r] = [];
       for (let c = 0; c < cols; c++) {
-        const baseX = c * GRID_SIZE;
-        const baseY = r * GRID_SIZE;
+        const baseX = offsetX + c * GRID_SIZE;
+        const baseY = offsetY + r * GRID_SIZE;
         const dx = baseX - mx;
         const dy = baseY - my;
         const dist = Math.sqrt(dx * dx + dy * dy);
