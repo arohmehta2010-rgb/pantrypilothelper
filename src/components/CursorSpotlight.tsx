@@ -187,29 +187,10 @@ const CursorSpotlight = () => {
   }, [drawGrid]);
 
   return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="pointer-events-none fixed inset-0 z-0"
-      />
-      <div
-        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
-        style={{ opacity: visible ? 1 : 0 }}
-      >
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 600,
-            height: 600,
-            left: pos.x - 300,
-            top: pos.y - 300,
-            background:
-              "radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.04) 40%, transparent 70%)",
-            transition: "left 0.15s ease-out, top 0.15s ease-out",
-          }}
-        />
-      </div>
-    </>
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none fixed inset-0 z-0"
+    />
   );
 };
 
