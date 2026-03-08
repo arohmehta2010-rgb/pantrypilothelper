@@ -6,12 +6,9 @@ const PUSH_STRENGTH = 8;
 const PARALLAX_FACTOR = 0.4; // Grid scrolls at 40% of page speed for depth
 
 const CursorSpotlight = () => {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const posRef = useRef({ x: 0, y: 0 });
-  const visibleRef = useRef(false);
   const scrollRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
