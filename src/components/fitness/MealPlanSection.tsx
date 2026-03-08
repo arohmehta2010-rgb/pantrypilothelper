@@ -60,7 +60,7 @@ export default function MealPlanSection({ bodyStats, weightGoal, dailyTargets, m
       
       const plan: MealPlan = {
         id: crypto.randomUUID(),
-        name: data.mealPlan.name || "AI Meal Plan",
+        name: data.mealPlan.name || "Generated Meal Plan",
         createdAt: new Date().toISOString(),
         days: data.mealPlan.days,
         dailyCalories: dailyTargets.calories,
@@ -91,7 +91,7 @@ export default function MealPlanSection({ bodyStats, weightGoal, dailyTargets, m
       <div className="grid sm:grid-cols-2 gap-3">
         <Button onClick={generateAIPlan} disabled={loading || !bodyStats || !weightGoal} className="w-full">
           {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
-          Generate AI Plan
+          Generate Plan
         </Button>
         <div className="space-y-2">
           <p className="text-xs text-muted-foreground text-center">Or use a template:</p>
@@ -106,7 +106,7 @@ export default function MealPlanSection({ bodyStats, weightGoal, dailyTargets, m
       </div>
 
       {!bodyStats && (
-        <p className="text-xs text-muted-foreground text-center">Fill in your body stats and set a weight goal to generate an AI meal plan.</p>
+        <p className="text-xs text-muted-foreground text-center">Fill in your body stats and set a weight goal to generate a meal plan.</p>
       )}
 
       {/* Plans list */}
