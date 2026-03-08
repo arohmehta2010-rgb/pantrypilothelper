@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 const GRID_SIZE = 60;
 const EXPAND_RADIUS = 150;
 const PUSH_STRENGTH = 8;
+const PARALLAX_FACTOR = 0.4; // Grid scrolls at 40% of page speed for depth
 
 const CursorSpotlight = () => {
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -61,9 +62,9 @@ const CursorSpotlight = () => {
     const { x: sx, y: sy } = scrollRef.current;
     const hovering = visibleRef.current;
 
-    // Offset grid origin by scroll so grid moves with the page
-    const offsetX = -(sx % GRID_SIZE);
-    const offsetY = -(sy % GRID_SIZE);
+    // Offset grid origin by scroll with parallax (grid moves slower than content)
+    const offsetX = -((sx * PARALLAX_FACTOR) % GRID_SIZE);
+    const offsetY = -((sy * PARALLAX_FACTOR) % GRID_SIZE);
 
     // Precompute displaced grid points
     const cols = Math.ceil(w / GRID_SIZE) + 2;
