@@ -11,6 +11,7 @@ const CursorSpotlight = () => {
   const animRef = useRef<number>(0);
   const posRef = useRef({ x: 0, y: 0 });
   const visibleRef = useRef(false);
+  const scrollRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
@@ -22,14 +23,20 @@ const CursorSpotlight = () => {
         visibleRef.current = true;
       }
     };
+    const handleScroll = () => {
+      scrollRef.current = { x: window.scrollX, y: window.scrollY };
+    };
     const handleLeave = () => { setVisible(false); visibleRef.current = false; };
     const handleEnter = () => { setVisible(true); visibleRef.current = true; };
 
+    handleScroll();
     window.addEventListener("mousemove", handleMove);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     document.documentElement.addEventListener("mouseleave", handleLeave);
     document.documentElement.addEventListener("mouseenter", handleEnter);
     return () => {
       window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("scroll", handleScroll);
       document.documentElement.removeEventListener("mouseleave", handleLeave);
       document.documentElement.removeEventListener("mouseenter", handleEnter);
     };
