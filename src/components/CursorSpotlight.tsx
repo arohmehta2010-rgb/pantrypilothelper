@@ -62,8 +62,7 @@ const CursorSpotlight = () => {
         const baseY = offsetY + r * GRID_SIZE;
         const dx = baseX - mx;
         const dy = baseY - my;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const influence = hovering ? Math.max(0, 1 - dist / EXPAND_RADIUS) : 0;
+        const influence = Math.max(0, 1 - dist / EXPAND_RADIUS);
 
         // Push points away from cursor (directional expansion)
         let px = baseX;
