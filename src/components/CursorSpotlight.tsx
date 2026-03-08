@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 const GRID_SIZE = 60;
 const EXPAND_RADIUS = 150;
 const PUSH_STRENGTH = 8;
+const PARALLAX_FACTOR = 0.4; // Grid scrolls at 40% of page speed for depth
 
 const CursorSpotlight = () => {
   const [pos, setPos] = useState({ x: 0, y: 0 });
