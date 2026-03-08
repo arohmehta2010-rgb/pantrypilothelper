@@ -45,7 +45,6 @@ const CursorSpotlight = () => {
 
     const { x: mx, y: my } = posRef.current;
     const { x: sx, y: sy } = scrollRef.current;
-    const hovering = visibleRef.current;
 
     // Offset grid origin by scroll with parallax (grid moves slower than content)
     const offsetX = -((sx * PARALLAX_FACTOR) % GRID_SIZE);
