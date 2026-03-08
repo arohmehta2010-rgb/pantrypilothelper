@@ -11,6 +11,7 @@ const CursorSpotlight = () => {
   const animRef = useRef<number>(0);
   const posRef = useRef({ x: 0, y: 0 });
   const visibleRef = useRef(false);
+  const scrollRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
@@ -22,14 +23,20 @@ const CursorSpotlight = () => {
         visibleRef.current = true;
       }
     };
+    const handleScroll = () => {
+      scrollRef.current = { x: window.scrollX, y: window.scrollY };
+    };
     const handleLeave = () => { setVisible(false); visibleRef.current = false; };
     const handleEnter = () => { setVisible(true); visibleRef.current = true; };
 
+    handleScroll();
     window.addEventListener("mousemove", handleMove);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     document.documentElement.addEventListener("mouseleave", handleLeave);
     document.documentElement.addEventListener("mouseenter", handleEnter);
     return () => {
       window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("scroll", handleScroll);
       document.documentElement.removeEventListener("mouseleave", handleLeave);
       document.documentElement.removeEventListener("mouseenter", handleEnter);
     };
@@ -51,18 +58,23 @@ const CursorSpotlight = () => {
     ctx.clearRect(0, 0, w, h);
 
     const { x: mx, y: my } = posRef.current;
+    const { x: sx, y: sy } = scrollRef.current;
     const hovering = visibleRef.current;
 
+    // Offset grid origin by scroll so grid moves with the page
+    const offsetX = -(sx % GRID_SIZE);
+    const offsetY = -(sy % GRID_SIZE);
+
     // Precompute displaced grid points
-    const cols = Math.ceil(w / GRID_SIZE) + 1;
-    const rows = Math.ceil(h / GRID_SIZE) + 1;
+    const cols = Math.ceil(w / GRID_SIZE) + 2;
+    const rows = Math.ceil(h / GRID_SIZE) + 2;
     const points: { x: number; y: number; influence: number }[][] = [];
 
     for (let r = 0; r < rows; r++) {
       points[r] = [];
       for (let c = 0; c < cols; c++) {
-        const baseX = c * GRID_SIZE;
-        const baseY = r * GRID_SIZE;
+        const baseX = offsetX + c * GRID_SIZE;
+        const baseY = offsetY + r * GRID_SIZE;
         const dx = baseX - mx;
         const dy = baseY - my;
         const dist = Math.sqrt(dx * dx + dy * dy);
