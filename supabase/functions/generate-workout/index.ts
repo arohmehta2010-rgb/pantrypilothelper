@@ -73,7 +73,7 @@ Return a JSON object with this exact structure (no markdown, no code blocks, jus
 }
 
 IMPORTANT RULES:
-- Include exactly ${daysPerWeek} workout days following the "${splitName}" split pattern.
+- Include exactly ${daysPerWeek} workout days following the "${splitName}" split pattern.${customDayFocuses && customDayFocuses.length > 0 ? `\n- IMPORTANT: Each day's focus MUST match the custom schedule provided above (${customDayFocuses.join(", ")}).` : ""}
 - Each day should have 4-6 exercises using ONLY the available equipment.
 - For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), and commonMistakes (2-3 mistakes).
 - The formCues should be step-by-step instructions for proper form that a beginner could follow.
