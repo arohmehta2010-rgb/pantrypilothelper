@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import CursorSpotlight from "@/components/CursorSpotlight";
+
 import HeroSection from "@/components/HeroSection";
 import RecipeBrowse from "@/components/RecipeBrowse";
 import RecipeGenerator from "@/components/RecipeGenerator";
