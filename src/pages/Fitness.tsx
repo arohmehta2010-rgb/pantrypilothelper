@@ -10,7 +10,7 @@ import BiometricTracker from "@/components/fitness/BiometricTracker";
 import NutritionLogger from "@/components/fitness/NutritionLogger";
 import MealPlanSection from "@/components/fitness/MealPlanSection";
 import { toast } from "sonner";
-import CursorSpotlight from "@/components/CursorSpotlight";
+
 
 const tabs = [
   { id: "stats", label: "Body Stats", icon: User },
@@ -33,7 +33,7 @@ export default function Fitness() {
 
   return (
     <div className="relative flex min-h-screen flex-col">
-      <CursorSpotlight />
+      
       <div className="relative z-10 flex min-h-screen flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b bg-card">
