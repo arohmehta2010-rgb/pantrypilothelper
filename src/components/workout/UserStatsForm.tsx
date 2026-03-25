@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import type { UserStats } from "@/lib/workoutTypes";
+import type { UserStats, WorkoutSplit } from "@/lib/workoutTypes";
+import { SPLIT_OPTIONS } from "@/lib/workoutTypes";
 import { ArrowRight } from "lucide-react";
 
 interface Props {
@@ -22,12 +23,17 @@ const UserStatsForm = ({ onSubmit }: Props) => {
     heightUnit: "cm",
     fitnessLevel: "beginner",
     goal: "build-muscle",
-    daysPerWeek: 4,
+    split: "push-pull-legs",
   });
+
+  const [customDays, setCustomDays] = useState(4);
+
+  const selectedSplit = SPLIT_OPTIONS.find((s) => s.id === stats.split);
+  const daysPerWeek = stats.split === "custom" ? customDays : (selectedSplit?.days ?? 4);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(stats);
+    onSubmit({ ...stats });
   };
 
   return (
@@ -184,23 +190,64 @@ const UserStatsForm = ({ onSubmit }: Props) => {
         </Select>
       </div>
 
-      {/* Days per week */}
+      {/* Workout Split */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">
-          Workout Days per Week: <span className="text-primary">{stats.daysPerWeek}</span>
-        </Label>
-        <Slider
-          value={[stats.daysPerWeek]}
-          onValueChange={(v) => setStats({ ...stats, daysPerWeek: v[0] })}
-          min={2}
-          max={7}
-          step={1}
-          className="py-2"
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>2 days</span>
-          <span>7 days</span>
+        <Label className="text-sm font-medium">Workout Split</Label>
+        <div className="space-y-2">
+          {SPLIT_OPTIONS.map((split) => (
+            <label
+              key={split.id}
+              className={`flex cursor-pointer items-start gap-4 rounded-lg border-2 px-4 py-3 transition-colors ${
+                stats.split === split.id
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/40"
+              }`}
+            >
+              <input
+                type="radio"
+                name="split"
+                value={split.id}
+                checked={stats.split === split.id}
+                onChange={() => setStats({ ...stats, split: split.id })}
+                className="sr-only"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-semibold ${stats.split === split.id ? "text-primary" : "text-foreground"}`}>
+                    {split.name}
+                  </span>
+                  {split.days > 0 && (
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                      {split.days} days/week
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">{split.description}</p>
+              </div>
+            </label>
+          ))}
         </div>
+
+        {/* Custom days slider */}
+        {stats.split === "custom" && (
+          <div className="mt-4 space-y-3 rounded-lg border border-border bg-secondary/30 p-4">
+            <Label className="text-sm font-medium">
+              Days per Week: <span className="text-primary">{customDays}</span>
+            </Label>
+            <Slider
+              value={[customDays]}
+              onValueChange={(v) => setCustomDays(v[0])}
+              min={2}
+              max={7}
+              step={1}
+              className="py-2"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>2 days</span>
+              <span>7 days</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <Button type="submit" className="h-12 w-full text-base font-semibold">

@@ -18,6 +18,9 @@ serve(async (req) => {
 
     const equipmentList = equipment.length > 0 ? equipment.join(", ") : "bodyweight only";
 
+    const splitName = stats.split || "custom";
+    const daysPerWeek = stats.daysPerWeek || 4;
+
     const prompt = `Create a personalized workout plan with these details:
 
 - Gender: ${stats.gender}
@@ -26,7 +29,8 @@ serve(async (req) => {
 - Height: ${stats.height} ${stats.heightUnit}
 - Fitness Level: ${stats.fitnessLevel}
 - Goal: ${stats.goal}
-- Days per week: ${stats.daysPerWeek}
+- Workout Split: ${splitName}
+- Days per week: ${daysPerWeek}
 - Available equipment: ${equipmentList}
 
 Return a JSON object with this exact structure (no markdown, no code blocks, just raw JSON):
@@ -44,7 +48,17 @@ Return a JSON object with this exact structure (no markdown, no code blocks, jus
           "sets": 3,
           "reps": "8-12",
           "rest": "60-90s",
-          "notes": "optional form tip"
+          "notes": "optional brief tip",
+          "formCues": [
+            "Step 1: Setup position description",
+            "Step 2: Movement execution description",
+            "Step 3: Key form point"
+          ],
+          "targetMuscles": ["Primary muscle", "Secondary muscle"],
+          "commonMistakes": [
+            "Mistake 1 and how to avoid it",
+            "Mistake 2 and how to avoid it"
+          ]
         }
       ],
       "cooldown": "5 min cooldown description"
@@ -53,7 +67,12 @@ Return a JSON object with this exact structure (no markdown, no code blocks, jus
   "tips": ["tip 1", "tip 2", "tip 3"]
 }
 
-Include ${stats.daysPerWeek} workout days. Each day should have 4-6 exercises using ONLY the available equipment. Make it realistic and appropriate for the fitness level.`;
+IMPORTANT RULES:
+- Include exactly ${daysPerWeek} workout days following the "${splitName}" split pattern.
+- Each day should have 4-6 exercises using ONLY the available equipment.
+- For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), and commonMistakes (2-3 mistakes).
+- The formCues should be step-by-step instructions for proper form that a beginner could follow.
+- Make it realistic and appropriate for the ${stats.fitnessLevel} fitness level.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -69,7 +88,7 @@ Include ${stats.daysPerWeek} workout days. Each day should have 4-6 exercises us
             {
               role: "system",
               content:
-                "You are a certified personal trainer. You create safe, effective, personalized workout plans. Always return valid JSON only, no markdown formatting.",
+                "You are a certified personal trainer and movement specialist. You create safe, effective, personalized workout plans with detailed form instructions. Always return valid JSON only, no markdown formatting.",
             },
             { role: "user", content: prompt },
           ],
