@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { WorkoutPlan, WorkoutExercise } from "@/lib/workoutTypes";
-import { ArrowLeft, Dumbbell, Lightbulb, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Dumbbell, Lightbulb, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2, Save, Check } from "lucide-react";
 
 interface Props {
   plan: WorkoutPlan;
   onBack: () => void;
   onRestart: () => void;
+  onSave?: (name: string) => void;
 }
 
 const ExerciseDemo = ({ exercise }: { exercise: WorkoutExercise }) => {
@@ -89,7 +91,17 @@ const ExerciseDemo = ({ exercise }: { exercise: WorkoutExercise }) => {
   );
 };
 
-const WorkoutPlanDisplay = ({ plan, onBack, onRestart }: Props) => {
+const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
+  const [saveName, setSaveName] = useState(plan.title);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    if (onSave && saveName.trim()) {
+      onSave(saveName.trim());
+      setSaved(true);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div className="text-center">
@@ -161,6 +173,31 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart }: Props) => {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Save section */}
+      {onSave && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          {saved ? (
+            <div className="flex items-center gap-2 text-sm text-primary font-medium justify-center py-2">
+              <Check className="h-4 w-4" />
+              Plan saved!
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Input
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                placeholder="Plan name..."
+                className="h-10"
+              />
+              <Button onClick={handleSave} className="h-10 shrink-0">
+                <Save className="mr-2 h-4 w-4" />
+                Save
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
