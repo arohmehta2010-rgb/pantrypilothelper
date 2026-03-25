@@ -64,6 +64,30 @@ export const SPLIT_OPTIONS: SplitOption[] = [
   { id: "custom", name: "Custom", days: 0, description: "Choose your own days & focus areas" },
 ];
 
+export interface SplitPreset {
+  name: string;
+  days: DayFocus[];
+}
+
+export const SPLIT_PRESETS: SplitPreset[] = [
+  { name: "PPL (3-Day)", days: ["push", "pull", "legs"] },
+  { name: "Upper / Lower (2-Day)", days: ["upper", "lower"] },
+  { name: "Upper / Lower (4-Day)", days: ["upper", "lower", "upper", "lower"] },
+  { name: "PPL × 2 (6-Day)", days: ["push", "pull", "legs", "push", "pull", "legs"] },
+  { name: "Full Body (2-Day)", days: ["full-body", "full-body"] },
+  { name: "Full Body (4-Day)", days: ["full-body", "full-body", "full-body", "full-body"] },
+  { name: "Arnold Split (6-Day)", days: ["chest", "back", "legs", "chest", "back", "legs"] },
+  { name: "Chest/Back/Legs/Shoulders/Arms", days: ["chest", "back", "legs", "shoulders", "arms"] },
+  { name: "Push/Pull/Legs/Upper/Lower", days: ["push", "pull", "legs", "upper", "lower"] },
+];
+
+export interface SavedPlan {
+  id: string;
+  name: string;
+  plan: WorkoutPlan;
+  savedAt: string;
+}
+
 export interface Equipment {
   id: string;
   name: string;
