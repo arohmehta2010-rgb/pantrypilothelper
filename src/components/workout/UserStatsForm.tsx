@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import type { UserStats, WorkoutSplit, DayFocus } from "@/lib/workoutTypes";
-import { SPLIT_OPTIONS, DAY_FOCUS_OPTIONS } from "@/lib/workoutTypes";
+import { SPLIT_OPTIONS, DAY_FOCUS_OPTIONS, SPLIT_PRESETS } from "@/lib/workoutTypes";
 import { ArrowRight } from "lucide-react";
 
 interface Props {
@@ -253,6 +253,35 @@ const UserStatsForm = ({ onSubmit }: Props) => {
         {/* Custom days slider */}
         {stats.split === "custom" && (
           <div className="mt-4 space-y-4 rounded-lg border border-border bg-secondary/30 p-4">
+            {/* Preset templates */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Quick Presets</Label>
+              <div className="flex flex-wrap gap-2">
+                {SPLIT_PRESETS.map((preset) => {
+                  const isActive =
+                    customDays === preset.days.length &&
+                    dayFocuses.slice(0, preset.days.length).every((f, i) => f === preset.days[i]);
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => {
+                        setCustomDays(preset.days.length);
+                        setDayFocuses([...preset.days]);
+                      }}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                        isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      }`}
+                    >
+                      {preset.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="space-y-3">
               <Label className="text-sm font-medium">
                 Days per Week: <span className="text-primary">{customDays}</span>
