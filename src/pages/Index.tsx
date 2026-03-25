@@ -3,7 +3,7 @@ import UserStatsForm from "@/components/workout/UserStatsForm";
 import EquipmentSelector from "@/components/workout/EquipmentSelector";
 import WorkoutPlanDisplay from "@/components/workout/WorkoutPlanDisplay";
 import type { UserStats, WorkoutPlan } from "@/lib/workoutTypes";
-import { EQUIPMENT_LIST } from "@/lib/workoutTypes";
+import { EQUIPMENT_LIST, SPLIT_OPTIONS } from "@/lib/workoutTypes";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Dumbbell, Loader2 } from "lucide-react";
@@ -28,9 +28,15 @@ const Index = () => {
       .map((id) => EQUIPMENT_LIST.find((e) => e.id === id)?.name)
       .filter(Boolean);
 
+    const selectedSplit = SPLIT_OPTIONS.find((s) => s.id === stats.split);
+    const daysPerWeek = stats.split === "custom" ? 4 : (selectedSplit?.days ?? 4);
+
     try {
       const { data, error } = await supabase.functions.invoke("generate-workout", {
-        body: { stats, equipment: equipmentNames },
+        body: {
+          stats: { ...stats, daysPerWeek },
+          equipment: equipmentNames,
+        },
       });
 
       if (error) throw error;
@@ -47,7 +53,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-5xl items-center px-4">
           <button
@@ -58,7 +63,6 @@ const Index = () => {
             <span className="text-lg font-bold tracking-tight">FitForge</span>
           </button>
 
-          {/* Step indicator */}
           <div className="ml-auto flex items-center gap-2">
             {["Stats", "Equipment", "Plan"].map((label, i) => {
               const stepMap: Step[] = ["stats", "equipment", "plan"];
@@ -77,7 +81,6 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Content */}
       <main className="px-4 py-12">
         {step === "stats" && <UserStatsForm onSubmit={handleStatsSubmit} />}
 
@@ -105,7 +108,6 @@ const Index = () => {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
         FitForge — your workout, your way
       </footer>

@@ -7,8 +7,30 @@ export interface UserStats {
   heightUnit: "cm" | "ft";
   fitnessLevel: "beginner" | "intermediate" | "advanced";
   goal: "lose-weight" | "build-muscle" | "stay-fit" | "increase-strength" | "improve-endurance";
-  daysPerWeek: number;
+  split: WorkoutSplit;
 }
+
+export type WorkoutSplit =
+  | "full-body"
+  | "upper-lower"
+  | "push-pull-legs"
+  | "bro-split"
+  | "custom";
+
+export interface SplitOption {
+  id: WorkoutSplit;
+  name: string;
+  days: number;
+  description: string;
+}
+
+export const SPLIT_OPTIONS: SplitOption[] = [
+  { id: "full-body", name: "Full Body", days: 3, description: "3 days — hit every muscle group each session" },
+  { id: "upper-lower", name: "Upper / Lower", days: 4, description: "4 days — alternate upper and lower body" },
+  { id: "push-pull-legs", name: "Push / Pull / Legs", days: 6, description: "6 days — group by movement pattern" },
+  { id: "bro-split", name: "Body Part Split", days: 5, description: "5 days — one muscle group per day" },
+  { id: "custom", name: "Custom", days: 0, description: "Choose your own number of days" },
+];
 
 export interface Equipment {
   id: string;
@@ -46,6 +68,9 @@ export interface WorkoutExercise {
   reps: string;
   rest: string;
   notes?: string;
+  formCues: string[];
+  targetMuscles: string[];
+  commonMistakes: string[];
 }
 
 export interface WorkoutDay {
