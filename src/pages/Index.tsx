@@ -2,7 +2,7 @@ import { useState } from "react";
 import UserStatsForm from "@/components/workout/UserStatsForm";
 import EquipmentSelector from "@/components/workout/EquipmentSelector";
 import WorkoutPlanDisplay from "@/components/workout/WorkoutPlanDisplay";
-import type { UserStats, WorkoutPlan } from "@/lib/workoutTypes";
+import type { UserStats, WorkoutPlan, EquipmentSelection } from "@/lib/workoutTypes";
 import { EQUIPMENT_LIST, SPLIT_OPTIONS } from "@/lib/workoutTypes";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,13 +20,16 @@ const Index = () => {
     setStep("equipment");
   };
 
-  const handleEquipmentSubmit = async (equipmentIds: string[]) => {
+  const handleEquipmentSubmit = async (selections: EquipmentSelection[]) => {
     if (!stats) return;
     setStep("loading");
 
-    const equipmentNames = equipmentIds
-      .map((id) => EQUIPMENT_LIST.find((e) => e.id === id)?.name)
-      .filter(Boolean);
+    const equipmentDescriptions = selections.map((sel) => {
+      const eq = EQUIPMENT_LIST.find((e) => e.id === sel.id);
+      if (!eq) return null;
+      if (sel.maxWeight) return `${eq.name} (up to ${sel.maxWeight} lbs)`;
+      return eq.name;
+    }).filter(Boolean);
 
     const selectedSplit = SPLIT_OPTIONS.find((s) => s.id === stats.split);
     const daysPerWeek = stats.split === "custom" ? 4 : (selectedSplit?.days ?? 4);
@@ -35,7 +38,7 @@ const Index = () => {
       const { data, error } = await supabase.functions.invoke("generate-workout", {
         body: {
           stats: { ...stats, daysPerWeek },
-          equipment: equipmentNames,
+          equipment: equipmentDescriptions,
         },
       });
 
