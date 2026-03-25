@@ -12,32 +12,11 @@ export default {
         "2xl": "1400px",
       },
     },
-    fontFamily: {
-      display: ['"Exclusive Editorial"', 'Georgia', 'serif'],
-      body: ['"DM Sans"', 'system-ui', 'sans-serif'],
-    },
     extend: {
       colors: {
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
-        },
-        highlight: "hsl(var(--highlight))",
-        navy: {
-          DEFAULT: "hsl(var(--navy))",
-          foreground: "hsl(var(--navy-foreground))",
-        },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          foreground: "hsl(var(--gold-foreground))",
-        },
-        blush: {
-          DEFAULT: "hsl(var(--blush))",
-          foreground: "hsl(var(--blush-foreground))",
-        },
-        periwinkle: {
-          DEFAULT: "hsl(var(--periwinkle))",
-          foreground: "hsl(var(--periwinkle-foreground))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
