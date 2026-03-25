@@ -8,6 +8,7 @@ export interface UserStats {
   fitnessLevel: "beginner" | "intermediate" | "advanced";
   goal: "lose-weight" | "build-muscle" | "stay-fit" | "increase-strength" | "improve-endurance";
   split: WorkoutSplit;
+  customDayFocuses?: DayFocus[];
 }
 
 export type WorkoutSplit =
@@ -16,6 +17,37 @@ export type WorkoutSplit =
   | "push-pull-legs"
   | "bro-split"
   | "custom";
+
+export type DayFocus =
+  | "push"
+  | "pull"
+  | "legs"
+  | "upper"
+  | "lower"
+  | "full-body"
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "arms"
+  | "core"
+  | "cardio"
+  | "rest";
+
+export const DAY_FOCUS_OPTIONS: { id: DayFocus; label: string; emoji: string }[] = [
+  { id: "push", label: "Push", emoji: "💥" },
+  { id: "pull", label: "Pull", emoji: "🪝" },
+  { id: "legs", label: "Legs", emoji: "🦵" },
+  { id: "upper", label: "Upper Body", emoji: "💪" },
+  { id: "lower", label: "Lower Body", emoji: "🏋️" },
+  { id: "full-body", label: "Full Body", emoji: "🧍" },
+  { id: "chest", label: "Chest", emoji: "🫁" },
+  { id: "back", label: "Back", emoji: "🔙" },
+  { id: "shoulders", label: "Shoulders", emoji: "🔝" },
+  { id: "arms", label: "Arms", emoji: "💪" },
+  { id: "core", label: "Core", emoji: "🎯" },
+  { id: "cardio", label: "Cardio", emoji: "🏃" },
+  { id: "rest", label: "Rest", emoji: "😴" },
+];
 
 export interface SplitOption {
   id: WorkoutSplit;
@@ -29,7 +61,7 @@ export const SPLIT_OPTIONS: SplitOption[] = [
   { id: "upper-lower", name: "Upper / Lower", days: 4, description: "4 days — alternate upper and lower body" },
   { id: "push-pull-legs", name: "Push / Pull / Legs", days: 6, description: "6 days — group by movement pattern" },
   { id: "bro-split", name: "Body Part Split", days: 5, description: "5 days — one muscle group per day" },
-  { id: "custom", name: "Custom", days: 0, description: "Choose your own number of days" },
+  { id: "custom", name: "Custom", days: 0, description: "Choose your own days & focus areas" },
 ];
 
 export interface Equipment {

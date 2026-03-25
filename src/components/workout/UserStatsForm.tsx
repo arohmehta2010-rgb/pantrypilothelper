@@ -5,8 +5,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import type { UserStats, WorkoutSplit } from "@/lib/workoutTypes";
-import { SPLIT_OPTIONS } from "@/lib/workoutTypes";
+import type { UserStats, WorkoutSplit, DayFocus } from "@/lib/workoutTypes";
+import { SPLIT_OPTIONS, DAY_FOCUS_OPTIONS } from "@/lib/workoutTypes";
 import { ArrowRight } from "lucide-react";
 
 interface Props {
@@ -27,13 +27,35 @@ const UserStatsForm = ({ onSubmit }: Props) => {
   });
 
   const [customDays, setCustomDays] = useState(4);
+  const [dayFocuses, setDayFocuses] = useState<DayFocus[]>(["push", "pull", "legs", "upper"]);
 
   const selectedSplit = SPLIT_OPTIONS.find((s) => s.id === stats.split);
   const daysPerWeek = stats.split === "custom" ? customDays : (selectedSplit?.days ?? 4);
 
+  const updateCustomDays = (newCount: number) => {
+    setCustomDays(newCount);
+    setDayFocuses((prev) => {
+      if (newCount > prev.length) {
+        return [...prev, ...Array(newCount - prev.length).fill("full-body" as DayFocus)];
+      }
+      return prev.slice(0, newCount);
+    });
+  };
+
+  const updateDayFocus = (dayIndex: number, focus: DayFocus) => {
+    setDayFocuses((prev) => {
+      const next = [...prev];
+      next[dayIndex] = focus;
+      return next;
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ ...stats });
+    onSubmit({
+      ...stats,
+      ...(stats.split === "custom" ? { customDayFocuses: dayFocuses } : {}),
+    });
   };
 
   return (
@@ -230,21 +252,47 @@ const UserStatsForm = ({ onSubmit }: Props) => {
 
         {/* Custom days slider */}
         {stats.split === "custom" && (
-          <div className="mt-4 space-y-3 rounded-lg border border-border bg-secondary/30 p-4">
-            <Label className="text-sm font-medium">
-              Days per Week: <span className="text-primary">{customDays}</span>
-            </Label>
-            <Slider
-              value={[customDays]}
-              onValueChange={(v) => setCustomDays(v[0])}
-              min={2}
-              max={7}
-              step={1}
-              className="py-2"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>2 days</span>
-              <span>7 days</span>
+          <div className="mt-4 space-y-4 rounded-lg border border-border bg-secondary/30 p-4">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">
+                Days per Week: <span className="text-primary">{customDays}</span>
+              </Label>
+              <Slider
+                value={[customDays]}
+                onValueChange={(v) => updateCustomDays(v[0])}
+                min={2}
+                max={7}
+                step={1}
+                className="py-2"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>2 days</span>
+                <span>7 days</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Focus for each day</Label>
+              {Array.from({ length: customDays }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="w-14 text-xs font-medium text-muted-foreground shrink-0">Day {i + 1}</span>
+                  <Select
+                    value={dayFocuses[i] || "full-body"}
+                    onValueChange={(v) => updateDayFocus(i, v as DayFocus)}
+                  >
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DAY_FOCUS_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.id} value={opt.id}>
+                          {opt.emoji} {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
             </div>
           </div>
         )}
