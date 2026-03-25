@@ -39,6 +39,7 @@ const Index = () => {
         body: {
           stats: { ...stats, daysPerWeek },
           equipment: equipmentDescriptions,
+          customDayFocuses: stats.customDayFocuses,
         },
       });
 
