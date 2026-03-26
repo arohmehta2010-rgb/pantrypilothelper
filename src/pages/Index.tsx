@@ -7,7 +7,7 @@ import { EQUIPMENT_LIST, SPLIT_OPTIONS } from "@/lib/workoutTypes";
 import { useSavedPlans } from "@/hooks/useSavedPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Dumbbell, Loader2, BookOpen, Trash2, Clock } from "lucide-react";
+import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved";
@@ -75,56 +75,72 @@ const Index = () => {
     toast.success("Plan deleted");
   };
 
+  const stepIndex = step === "stats" ? 0 : step === "equipment" ? 1 : step === "loading" || step === "plan" ? 2 : -1;
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="mx-auto flex h-16 max-w-5xl items-center px-4">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-5xl items-center px-6">
           <button
             onClick={() => { setStep("stats"); setPlan(null); setViewingSavedPlan(null); }}
-            className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-2.5 group"
           >
-            <Dumbbell className="h-5 w-5 text-primary" />
-            <span className="text-lg font-bold tracking-tight">FitForge</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 glow-primary">
+              <Zap className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-200">
+              FitForge
+            </span>
           </button>
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex items-center gap-5">
             <button
               onClick={() => setStep("saved-plans")}
-              className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
                 step === "saved-plans" || step === "view-saved"
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <BookOpen className="h-4 w-4" />
-              Saved Plans
+              <span className="hidden sm:inline">Saved</span>
               {savedPlans.length > 0 && (
-                <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-[10px] font-bold text-primary">
                   {savedPlans.length}
                 </span>
               )}
             </button>
 
-            <div className="flex items-center gap-2">
-              {["Stats", "Equipment", "Plan"].map((label, i) => {
-                const stepMap: Step[] = ["stats", "equipment", "plan"];
-                const currentIdx = step === "loading" ? 2 : stepMap.indexOf(step);
-                const isActive = i <= currentIdx && step !== "saved-plans" && step !== "view-saved";
-                return (
-                  <div key={label} className="flex items-center gap-2">
-                    {i > 0 && <div className={`h-px w-6 ${isActive ? "bg-primary" : "bg-border"}`} />}
-                    <span className={`text-xs font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
-                      {label}
-                    </span>
+            {/* Step indicators */}
+            <div className="hidden sm:flex items-center gap-1">
+              {["Stats", "Equipment", "Plan"].map((label, i) => (
+                <div key={label} className="flex items-center">
+                  {i > 0 && (
+                    <div className={`h-px w-5 mx-1 transition-colors duration-300 ${i <= stepIndex ? "bg-primary/60" : "bg-border"}`} />
+                  )}
+                  <div
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all duration-300 ${
+                      i === stepIndex
+                        ? "bg-primary/15 text-primary"
+                        : i < stepIndex
+                        ? "text-primary/60"
+                        : "text-muted-foreground/60"
+                    }`}
+                  >
+                    <div className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
+                      i <= stepIndex ? "bg-primary" : "bg-muted-foreground/30"
+                    }`} />
+                    {label}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </header>
 
-      <main className="px-4 py-12">
+      <main className="px-6 py-10">
         {step === "stats" && <UserStatsForm onSubmit={handleStatsSubmit} />}
 
         {step === "equipment" && (
@@ -135,10 +151,15 @@ const Index = () => {
         )}
 
         {step === "loading" && (
-          <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-lg font-medium text-foreground">Building your workout plan...</p>
-            <p className="text-sm text-muted-foreground">This usually takes 10–20 seconds</p>
+          <div className="flex flex-col items-center justify-center py-32 gap-5">
+            <div className="relative">
+              <div className="h-12 w-12 rounded-full border-2 border-primary/20" />
+              <div className="absolute inset-0 h-12 w-12 rounded-full border-2 border-transparent border-t-primary animate-spin" />
+            </div>
+            <div className="text-center space-y-1.5">
+              <p className="text-lg font-semibold text-foreground">Building your plan</p>
+              <p className="text-sm text-muted-foreground">Usually takes 10–20 seconds</p>
+            </div>
           </div>
         )}
 
@@ -161,15 +182,15 @@ const Index = () => {
 
         {step === "saved-plans" && (
           <div className="mx-auto max-w-lg space-y-6">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Saved Plans</h1>
-              <p className="mt-2 text-muted-foreground">Your previously saved workout plans</p>
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">Saved Plans</h1>
+              <p className="text-sm text-muted-foreground">Your previously saved workout plans</p>
             </div>
 
             {savedPlans.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border p-12 text-center">
-                <BookOpen className="mx-auto h-10 w-10 text-muted-foreground/50" />
-                <p className="mt-4 text-sm text-muted-foreground">No saved plans yet</p>
+              <div className="glass-card rounded-xl p-12 text-center">
+                <BookOpen className="mx-auto h-8 w-8 text-muted-foreground/40" />
+                <p className="mt-3 text-sm text-muted-foreground">No saved plans yet</p>
                 <Button
                   variant="outline"
                   className="mt-4"
@@ -179,27 +200,27 @@ const Index = () => {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {savedPlans.map((saved) => (
                   <div
                     key={saved.id}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-colors"
+                    className="glass-card flex items-center gap-3 rounded-xl p-4 hover:border-primary/30 transition-all duration-200 group"
                   >
                     <button
                       onClick={() => handleViewSaved(saved)}
                       className="flex-1 text-left"
                     >
-                      <h3 className="font-semibold text-foreground">{saved.name}</h3>
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-200">{saved.name}</h3>
                       <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         {new Date(saved.savedAt).toLocaleDateString()}
-                        <span>·</span>
+                        <span className="text-border">·</span>
                         <span>{saved.plan.days.length} days</span>
                       </div>
                     </button>
                     <button
                       onClick={() => handleDeleteSaved(saved.id)}
-                      className="rounded-lg p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      className="rounded-lg p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-200"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -211,7 +232,7 @@ const Index = () => {
         )}
       </main>
 
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground/60">
         FitForge — your workout, your way
       </footer>
     </div>
