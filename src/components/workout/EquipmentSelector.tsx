@@ -57,13 +57,13 @@ const EquipmentSelector = ({ onSubmit, onBack }: Props) => {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+    <div className="mx-auto max-w-2xl space-y-7">
+      <div className="text-center space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           What equipment do you have?
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          Select everything available to you — set max weight where applicable
+        <p className="text-sm text-muted-foreground">
+          Select everything available — set max weight where applicable
         </p>
       </div>
 
@@ -71,28 +71,28 @@ const EquipmentSelector = ({ onSubmit, onBack }: Props) => {
         const items = EQUIPMENT_LIST.filter((e) => e.category === cat.key);
         if (items.length === 0) return null;
         return (
-          <div key={cat.key} className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <div key={cat.key} className="space-y-2">
+            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">
               {cat.label}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {items.map((eq) => {
                 const isSelected = selected.has(eq.id);
                 const isWeightExpanded = expandedWeight === eq.id;
                 const currentWeight = selected.get(eq.id);
 
                 return (
-                  <div key={eq.id} className="space-y-0">
+                  <div key={eq.id}>
                     <button
                       type="button"
                       onClick={() => toggle(eq.id)}
-                      className={`relative flex w-full items-center gap-3 rounded-lg border-2 px-4 py-3 text-left text-sm font-medium transition-all ${
+                      className={`relative flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm font-medium transition-all duration-200 ${
                         isSelected
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border text-foreground hover:border-primary/40"
+                          ? "border-primary/50 bg-primary/8 text-primary"
+                          : "border-border bg-card/30 text-foreground hover:border-muted-foreground/30"
                       }`}
                     >
-                      <span className="text-lg">{eq.icon}</span>
+                      <span className="text-base">{eq.icon}</span>
                       <span className="flex-1">{eq.name}</span>
                       {isSelected && eq.hasWeight && currentWeight && (
                         <button
@@ -101,37 +101,34 @@ const EquipmentSelector = ({ onSubmit, onBack }: Props) => {
                             e.stopPropagation();
                             setExpandedWeight(isWeightExpanded ? null : eq.id);
                           }}
-                          className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                          className="flex items-center gap-1 rounded-md bg-primary/15 px-2 py-1 text-[11px] font-semibold text-primary hover:bg-primary/25 transition-colors duration-200"
                         >
-                          Up to {currentWeight} lbs
-                          {isWeightExpanded ? (
-                            <ChevronUp className="h-3 w-3" />
-                          ) : (
-                            <ChevronDown className="h-3 w-3" />
-                          )}
+                          {currentWeight} lbs
+                          {isWeightExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                         </button>
                       )}
                       {isSelected && (
-                        <Check className="h-4 w-4 text-primary" />
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                          <Check className="h-3 w-3 text-primary-foreground" />
+                        </div>
                       )}
                     </button>
 
-                    {/* Weight picker */}
                     {isSelected && eq.hasWeight && eq.weightOptions && isWeightExpanded && (
-                      <div className="ml-4 mt-1 mb-2 rounded-lg border border-border bg-secondary/30 p-3">
-                        <p className="text-xs font-medium text-muted-foreground mb-2">
-                          Max weight available (lbs):
+                      <div className="ml-4 mt-1 mb-1.5 rounded-lg border border-border bg-card/40 p-3">
+                        <p className="text-[11px] font-medium text-muted-foreground mb-2">
+                          Max weight (lbs):
                         </p>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1">
                           {eq.weightOptions.map((w) => (
                             <button
                               key={w}
                               type="button"
                               onClick={() => setWeight(eq.id, w)}
-                              className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                              className={`rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-200 ${
                                 currentWeight === w
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-card border border-border text-foreground hover:border-primary/40"
+                                  ? "bg-primary text-primary-foreground glow-primary"
+                                  : "bg-secondary border border-border text-foreground hover:border-muted-foreground/40"
                               }`}
                             >
                               {w}
@@ -148,15 +145,15 @@ const EquipmentSelector = ({ onSubmit, onBack }: Props) => {
         );
       })}
 
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={onBack} className="h-12 flex-1">
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={onBack} className="h-11 flex-1 border-border bg-card/30 hover:bg-card/60 transition-all duration-200">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={selected.size === 0}
-          className="h-12 flex-1 font-semibold"
+          className="h-11 flex-1 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 glow-primary transition-all duration-200"
         >
           Generate Plan
           <ArrowRight className="ml-2 h-4 w-4" />
