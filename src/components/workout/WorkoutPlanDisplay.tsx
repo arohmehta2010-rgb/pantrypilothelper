@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { WorkoutPlan, WorkoutExercise } from "@/lib/workoutTypes";
-import { ArrowLeft, Dumbbell, Lightbulb, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2, Save, Check, Flame, Clock, Zap } from "lucide-react";
+import { ArrowLeft, Dumbbell, Lightbulb, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2, Save, Check, Flame, Clock, Zap, Play } from "lucide-react";
 
 interface Props {
   plan: WorkoutPlan;
   onBack: () => void;
   onRestart: () => void;
   onSave?: (name: string) => void;
+  onStartTimer?: (dayIndex: number) => void;
 }
 
 const ExerciseDemo = ({ exercise }: { exercise: WorkoutExercise }) => {
