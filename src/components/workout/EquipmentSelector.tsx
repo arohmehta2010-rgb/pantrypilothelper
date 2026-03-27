@@ -57,7 +57,7 @@ const EquipmentSelector = ({ onSubmit, onBack }: Props) => {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-7">
+    <div className="mx-auto max-w-2xl space-y-5 sm:space-y-7">
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           What equipment do you have?

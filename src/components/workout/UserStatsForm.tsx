@@ -61,29 +61,25 @@ const UserStatsForm = ({ onSubmit }: Props) => {
   const OptionButton = ({
     active,
     children,
-    onClick,
     className = "",
   }: {
     active: boolean;
     children: React.ReactNode;
-    onClick?: () => void;
     className?: string;
   }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-1 items-center justify-center rounded-lg border px-4 py-3 text-sm font-medium transition-all duration-200 ${
+    <div
+      className={`flex flex-1 items-center justify-center rounded-lg border px-3 sm:px-4 py-3 text-sm font-medium transition-all duration-200 cursor-pointer ${
         active
           ? "border-primary/50 bg-primary/10 text-primary glow-primary"
           : "border-border bg-card/40 text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground"
       } ${className}`}
     >
       {children}
-    </button>
+    </div>
   );
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-lg space-y-7">
+    <form onSubmit={handleSubmit} className="mx-auto max-w-lg space-y-5 sm:space-y-7">
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Tell us about yourself

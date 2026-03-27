@@ -27,8 +27,8 @@ const ExerciseDemo = ({ exercise }: { exercise: WorkoutExercise }) => {
             <span className="block text-xs text-muted-foreground mt-0.5">{exercise.notes}</span>
           )}
         </div>
-        <span className="text-xs text-muted-foreground whitespace-nowrap font-mono">{exercise.sets}×{exercise.reps}</span>
-        <span className="text-xs text-muted-foreground/60 whitespace-nowrap">{exercise.rest}</span>
+        <span className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap font-mono">{exercise.sets}×{exercise.reps}</span>
+        <span className="text-[11px] sm:text-xs text-muted-foreground/60 whitespace-nowrap hidden sm:inline">{exercise.rest}</span>
         <div className="text-muted-foreground/40">
           {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         </div>
@@ -100,7 +100,7 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-7">
+    <div className="mx-auto max-w-3xl space-y-5 sm:space-y-7 px-0">
       <div className="text-center space-y-2">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           {plan.title}
@@ -135,7 +135,7 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
               <div className="flex items-center gap-3 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 border-b border-border/30 pb-2">
                 <div className="flex-1">Exercise</div>
                 <div className="whitespace-nowrap">Sets × Reps</div>
-                <div className="whitespace-nowrap">Rest</div>
+                <div className="whitespace-nowrap hidden sm:block">Rest</div>
                 <div className="w-3.5" />
               </div>
 
