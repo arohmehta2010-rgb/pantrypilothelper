@@ -62,6 +62,7 @@ Return a JSON object with this exact structure (no markdown, no code blocks, jus
           "rest": "60-90s",
           "notes": "optional brief tip including suggested weight if applicable",
           "caloriesBurned": 65,
+          "youtubeSearch": "proper form exercise name tutorial",
           "formCues": [
             "Step 1: Setup position description",
             "Step 2: Movement execution description",
@@ -83,7 +84,7 @@ Return a JSON object with this exact structure (no markdown, no code blocks, jus
 IMPORTANT RULES:
 - Include exactly ${daysPerWeek} workout days following the "${splitName}" split pattern.${customDayFocuses && customDayFocuses.length > 0 ? `\n- IMPORTANT: Each day's focus MUST match the custom schedule provided above (${customDayFocuses.join(", ")}).` : ""}
 - Each day should have 4-6 exercises using ONLY the available equipment.
-- For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), commonMistakes (2-3 mistakes), and caloriesBurned (realistic estimate for this person).
+- For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), commonMistakes (2-3 mistakes), caloriesBurned (realistic estimate for this person), and youtubeSearch (a concise YouTube search query for proper form, e.g. "proper form barbell squat tutorial").
 - Include totalCalories per day and weeklyCalories for the full plan.
 - Include estimatedDuration per day (total time including rest).
 - Where applicable, suggest specific weights in the notes field based on the user's body weight and fitness level.
