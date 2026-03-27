@@ -36,7 +36,9 @@ const Index = () => {
     }).filter(Boolean);
 
     const selectedSplit = SPLIT_OPTIONS.find((s) => s.id === stats.split);
-    const daysPerWeek = stats.split === "custom" ? 4 : (selectedSplit?.days ?? 4);
+    const daysPerWeek = stats.split === "custom"
+      ? (stats.customDayFocuses?.length ?? 4)
+      : (selectedSplit?.days ?? 4);
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-workout", {
@@ -140,7 +142,7 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="px-6 py-10">
+      <main className="px-4 sm:px-6 py-6 sm:py-10">
         {step === "stats" && <UserStatsForm onSubmit={handleStatsSubmit} />}
 
         {step === "equipment" && (

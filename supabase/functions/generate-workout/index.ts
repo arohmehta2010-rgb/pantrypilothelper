@@ -36,7 +36,9 @@ serve(async (req) => {
 - Workout Split: ${splitName}
 - Days per week: ${daysPerWeek}${customSchedule}
 - Available equipment: ${equipmentList}
-- Available equipment: ${equipmentList}
+
+INTENSITY GUIDELINES based on fitness level "${stats.fitnessLevel}":
+${stats.fitnessLevel === "beginner" ? "- Use 3 sets per exercise, higher rep ranges (10-15), longer rest periods (90-120s), focus on compound movements and machine-based exercises for safety." : ""}${stats.fitnessLevel === "intermediate" ? "- Use 3-4 sets per exercise, moderate rep ranges (8-12), moderate rest (60-90s), include supersets and progressive overload strategies." : ""}${stats.fitnessLevel === "advanced" ? "- Use 4-5 sets per exercise, varied rep ranges (6-15 including heavy sets), shorter rest (45-75s), include advanced techniques like drop sets, rest-pause sets, and tempo manipulation." : ""}
 
 Return a JSON object with this exact structure (no markdown, no code blocks, just raw JSON):
 {
@@ -77,7 +79,8 @@ IMPORTANT RULES:
 - Each day should have 4-6 exercises using ONLY the available equipment.
 - For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), and commonMistakes (2-3 mistakes).
 - The formCues should be step-by-step instructions for proper form that a beginner could follow.
-- Make it realistic and appropriate for the ${stats.fitnessLevel} fitness level.`;
+- Make it realistic and appropriate for the ${stats.fitnessLevel} fitness level.
+- CRITICAL: You MUST return EXACTLY ${daysPerWeek} days in the "days" array. No more, no less.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
