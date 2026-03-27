@@ -358,6 +358,10 @@ const Index = () => {
             )}
           </div>
         )}
+
+        {step === "coach" && <FitnessChat />}
+
+        {step === "body-stats" && <StatsLogger />}
       </main>
 
       <footer className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground/60">
