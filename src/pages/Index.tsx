@@ -156,7 +156,28 @@ const Index = () => {
             </span>
           </button>
 
-          <div className="ml-auto flex items-center gap-3 sm:gap-5">
+          <div className="ml-auto flex items-center gap-2 sm:gap-4">
+            {/* Nav tabs */}
+            <button
+              onClick={() => setStep("coach")}
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+                step === "coach" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Coach</span>
+            </button>
+
+            <button
+              onClick={() => setStep("body-stats")}
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+                step === "body-stats" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Scale className="h-4 w-4" />
+              <span className="hidden sm:inline">Stats</span>
+            </button>
+
             <button
               onClick={() => setStep("saved-plans")}
               className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
