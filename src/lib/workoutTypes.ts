@@ -178,6 +178,7 @@ export interface WorkoutExercise {
   targetMuscles: string[];
   commonMistakes: string[];
   caloriesBurned?: number;
+  youtubeSearch?: string;
 }
 
 export interface WorkoutDay {

@@ -4,6 +4,8 @@ import UserStatsForm from "@/components/workout/UserStatsForm";
 import EquipmentSelector from "@/components/workout/EquipmentSelector";
 import WorkoutPlanDisplay from "@/components/workout/WorkoutPlanDisplay";
 import WorkoutTimer from "@/components/workout/WorkoutTimer";
+import FitnessChat from "@/components/FitnessChat";
+import StatsLogger from "@/components/StatsLogger";
 import type { UserStats, WorkoutPlan, EquipmentSelection, SavedPlan } from "@/lib/workoutTypes";
 import { EQUIPMENT_LIST, SPLIT_OPTIONS } from "@/lib/workoutTypes";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,10 +13,10 @@ import { useCloudSavedPlans } from "@/hooks/useCloudSavedPlans";
 import { useSavedPlans } from "@/hooks/useSavedPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User } from "lucide-react";
+import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User, MessageCircle, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved" | "timer";
+type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved" | "timer" | "coach" | "body-stats";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -154,7 +156,28 @@ const Index = () => {
             </span>
           </button>
 
-          <div className="ml-auto flex items-center gap-3 sm:gap-5">
+          <div className="ml-auto flex items-center gap-2 sm:gap-4">
+            {/* Nav tabs */}
+            <button
+              onClick={() => setStep("coach")}
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+                step === "coach" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Coach</span>
+            </button>
+
+            <button
+              onClick={() => setStep("body-stats")}
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+                step === "body-stats" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Scale className="h-4 w-4" />
+              <span className="hidden sm:inline">Stats</span>
+            </button>
+
             <button
               onClick={() => setStep("saved-plans")}
               className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
@@ -335,6 +358,10 @@ const Index = () => {
             )}
           </div>
         )}
+
+        {step === "coach" && <FitnessChat />}
+
+        {step === "body-stats" && <StatsLogger />}
       </main>
 
       <footer className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground/60">
