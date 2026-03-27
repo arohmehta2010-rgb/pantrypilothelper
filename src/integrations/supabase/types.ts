@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      weight_logs: {
+        Row: {
+          body_fat_percent: number | null
+          id: string
+          logged_at: string
+          muscle_mass: number | null
+          notes: string | null
+          user_id: string
+          weight: number
+          weight_unit: string
+        }
+        Insert: {
+          body_fat_percent?: number | null
+          id?: string
+          logged_at?: string
+          muscle_mass?: number | null
+          notes?: string | null
+          user_id: string
+          weight: number
+          weight_unit?: string
+        }
+        Update: {
+          body_fat_percent?: number | null
+          id?: string
+          logged_at?: string
+          muscle_mass?: number | null
+          notes?: string | null
+          user_id?: string
+          weight?: number
+          weight_unit?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
