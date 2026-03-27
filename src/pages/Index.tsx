@@ -13,7 +13,7 @@ import { useCloudSavedPlans } from "@/hooks/useCloudSavedPlans";
 import { useSavedPlans } from "@/hooks/useSavedPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User, MessageCircle, Scale } from "lucide-react";
+import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User, MessageCircle, Scale, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved" | "timer" | "coach" | "body-stats";
@@ -109,6 +109,41 @@ const Index = () => {
   const startTimer = (dayIndex: number) => {
     setTimerDayIndex(dayIndex);
     setStep("timer");
+  };
+
+  const exportPlan = (plan: WorkoutPlan, name: string) => {
+    let text = `${name}\n${"=".repeat(name.length)}\n\n${plan.summary}\n\n`;
+    plan.days.forEach((day) => {
+      text += `--- ${day.day}: ${day.focus} ---\n`;
+      if (day.estimatedDuration) text += `Duration: ${day.estimatedDuration}`;
+      if (day.totalCalories) text += ` | Calories: ~${day.totalCalories}`;
+      text += "\n";
+      if (day.warmup) text += `Warm-up: ${day.warmup}\n`;
+      text += "\n";
+      day.exercises.forEach((ex, i) => {
+        text += `  ${i + 1}. ${ex.name} — ${ex.sets}×${ex.reps} (Rest: ${ex.rest})`;
+        if (ex.caloriesBurned) text += ` ~${ex.caloriesBurned} cal`;
+        text += "\n";
+        if (ex.notes) text += `     Note: ${ex.notes}\n`;
+        if (ex.targetMuscles?.length) text += `     Muscles: ${ex.targetMuscles.join(", ")}\n`;
+        if (ex.formCues?.length) ex.formCues.forEach((c) => { text += `     ✓ ${c}\n`; });
+        if (ex.commonMistakes?.length) ex.commonMistakes.forEach((m) => { text += `     ✗ ${m}\n`; });
+      });
+      if (day.cooldown) text += `\nCool-down: ${day.cooldown}\n`;
+      text += "\n";
+    });
+    if (plan.tips.length > 0) {
+      text += "--- Tips ---\n";
+      plan.tips.forEach((t) => { text += `• ${t}\n`; });
+    }
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name.replace(/[^a-zA-Z0-9]/g, "_")}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Plan exported!");
   };
 
   const stepIndex = step === "stats" ? 0 : step === "equipment" ? 1 : step === "loading" || step === "plan" ? 2 : -1;
@@ -347,8 +382,16 @@ const Index = () => {
                       </div>
                     </button>
                     <button
+                      onClick={() => exportPlan(saved.plan, saved.name)}
+                      className="rounded-lg p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors duration-200"
+                      title="Export plan"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                    <button
                       onClick={() => handleDeleteSaved(saved.id)}
                       className="rounded-lg p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-200"
+                      title="Delete plan"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
