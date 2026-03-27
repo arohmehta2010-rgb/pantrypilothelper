@@ -37,25 +37,31 @@ serve(async (req) => {
 - Days per week: ${daysPerWeek}${customSchedule}
 - Available equipment: ${equipmentList}
 
+Use the person's weight (${stats.weight} ${stats.weightUnit}), age (${stats.age}), and gender (${stats.gender}) to calculate realistic calorie burn estimates for each exercise and each day's total. Heavier individuals burn more calories. Older individuals may burn slightly fewer. Factor in exercise intensity and duration.
+
 INTENSITY GUIDELINES based on fitness level "${stats.fitnessLevel}":
-${stats.fitnessLevel === "beginner" ? "- Use 3 sets per exercise, higher rep ranges (10-15), longer rest periods (90-120s), focus on compound movements and machine-based exercises for safety." : ""}${stats.fitnessLevel === "intermediate" ? "- Use 3-4 sets per exercise, moderate rep ranges (8-12), moderate rest (60-90s), include supersets and progressive overload strategies." : ""}${stats.fitnessLevel === "advanced" ? "- Use 4-5 sets per exercise, varied rep ranges (6-15 including heavy sets), shorter rest (45-75s), include advanced techniques like drop sets, rest-pause sets, and tempo manipulation." : ""}
+${stats.fitnessLevel === "beginner" ? "- Use 3 sets per exercise, higher rep ranges (10-15), longer rest periods (90-120s), focus on compound movements and machine-based exercises for safety. Recommend lighter weights relative to the user's body weight." : ""}${stats.fitnessLevel === "intermediate" ? "- Use 3-4 sets per exercise, moderate rep ranges (8-12), moderate rest (60-90s), include supersets and progressive overload strategies. Recommend moderate weights." : ""}${stats.fitnessLevel === "advanced" ? "- Use 4-5 sets per exercise, varied rep ranges (6-15 including heavy sets), shorter rest (45-75s), include advanced techniques like drop sets, rest-pause sets, and tempo manipulation. Recommend challenging weights." : ""}
 
 Return a JSON object with this exact structure (no markdown, no code blocks, just raw JSON):
 {
   "title": "Plan title",
-  "summary": "Brief 1-2 sentence summary",
+  "summary": "Brief 1-2 sentence summary mentioning calorie context",
+  "weeklyCalories": 2500,
   "days": [
     {
       "day": "Day 1",
       "focus": "e.g. Upper Body Push",
       "warmup": "5 min warmup description",
+      "totalCalories": 450,
+      "estimatedDuration": "55 min",
       "exercises": [
         {
           "name": "Exercise name",
           "sets": 3,
           "reps": "8-12",
           "rest": "60-90s",
-          "notes": "optional brief tip",
+          "notes": "optional brief tip including suggested weight if applicable",
+          "caloriesBurned": 65,
           "formCues": [
             "Step 1: Setup position description",
             "Step 2: Movement execution description",
@@ -77,7 +83,10 @@ Return a JSON object with this exact structure (no markdown, no code blocks, jus
 IMPORTANT RULES:
 - Include exactly ${daysPerWeek} workout days following the "${splitName}" split pattern.${customDayFocuses && customDayFocuses.length > 0 ? `\n- IMPORTANT: Each day's focus MUST match the custom schedule provided above (${customDayFocuses.join(", ")}).` : ""}
 - Each day should have 4-6 exercises using ONLY the available equipment.
-- For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), and commonMistakes (2-3 mistakes).
+- For EVERY exercise, provide detailed formCues (3-5 steps), targetMuscles (1-3 muscles), commonMistakes (2-3 mistakes), and caloriesBurned (realistic estimate for this person).
+- Include totalCalories per day and weeklyCalories for the full plan.
+- Include estimatedDuration per day (total time including rest).
+- Where applicable, suggest specific weights in the notes field based on the user's body weight and fitness level.
 - The formCues should be step-by-step instructions for proper form that a beginner could follow.
 - Make it realistic and appropriate for the ${stats.fitnessLevel} fitness level.
 - CRITICAL: You MUST return EXACTLY ${daysPerWeek} days in the "days" array. No more, no less.`;
