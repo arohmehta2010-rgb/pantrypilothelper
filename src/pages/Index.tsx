@@ -1,23 +1,37 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import UserStatsForm from "@/components/workout/UserStatsForm";
 import EquipmentSelector from "@/components/workout/EquipmentSelector";
 import WorkoutPlanDisplay from "@/components/workout/WorkoutPlanDisplay";
+import WorkoutTimer from "@/components/workout/WorkoutTimer";
 import type { UserStats, WorkoutPlan, EquipmentSelection, SavedPlan } from "@/lib/workoutTypes";
 import { EQUIPMENT_LIST, SPLIT_OPTIONS } from "@/lib/workoutTypes";
+import { useAuth } from "@/hooks/useAuth";
+import { useCloudSavedPlans } from "@/hooks/useCloudSavedPlans";
 import { useSavedPlans } from "@/hooks/useSavedPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap } from "lucide-react";
+import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved";
+type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved" | "timer";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const cloudPlans = useCloudSavedPlans(user?.id);
+  const localPlans = useSavedPlans();
+
   const [step, setStep] = useState<Step>("stats");
   const [stats, setStats] = useState<UserStats | null>(null);
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
-  const [viewingSavedPlan, setViewingSavedPlan] = useState<SavedPlan | null>(null);
-  const { plans: savedPlans, savePlan, deletePlan } = useSavedPlans();
+  const [viewingSavedPlan, setViewingSavedPlan] = useState<{ plan: WorkoutPlan; name: string } | null>(null);
+  const [timerDayIndex, setTimerDayIndex] = useState(0);
+
+  // Use cloud plans if logged in, else local
+  const savedPlans = user
+    ? cloudPlans.plans.map((p) => ({ id: p.id, name: p.name, plan: p.plan, savedAt: p.created_at }))
+    : localPlans.plans;
 
   const handleStatsSubmit = (s: UserStats) => {
     setStats(s);
@@ -61,29 +75,73 @@ const Index = () => {
     }
   };
 
-  const handleSavePlan = (name: string) => {
+  const handleSavePlan = async (name: string) => {
     if (!plan) return;
-    savePlan(name, plan);
-    toast.success("Workout plan saved!");
+    if (user) {
+      const error = await cloudPlans.savePlan(name, plan);
+      if (error) {
+        toast.error("Failed to save plan");
+      } else {
+        toast.success("Workout plan saved to your account!");
+      }
+    } else {
+      localPlans.savePlan(name, plan);
+      toast.success("Plan saved locally. Sign in to save to the cloud!");
+    }
   };
 
-  const handleViewSaved = (saved: SavedPlan) => {
+  const handleViewSaved = (saved: { plan: WorkoutPlan; name: string }) => {
     setViewingSavedPlan(saved);
     setStep("view-saved");
   };
 
-  const handleDeleteSaved = (id: string) => {
-    deletePlan(id);
+  const handleDeleteSaved = async (id: string) => {
+    if (user) {
+      await cloudPlans.deletePlan(id);
+    } else {
+      localPlans.deletePlan(id);
+    }
     toast.success("Plan deleted");
   };
 
+  const startTimer = (dayIndex: number) => {
+    setTimerDayIndex(dayIndex);
+    setStep("timer");
+  };
+
   const stepIndex = step === "stats" ? 0 : step === "equipment" ? 1 : step === "loading" || step === "plan" ? 2 : -1;
+
+  if (step === "timer" && (plan || viewingSavedPlan)) {
+    const activePlan = viewingSavedPlan?.plan ?? plan!;
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+          <div className="mx-auto flex h-14 max-w-5xl items-center px-4 sm:px-6">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 glow-primary">
+                <Zap className="h-4 w-4 text-primary" />
+              </div>
+              <span className="text-lg font-bold tracking-tight text-foreground">FitForge</span>
+            </div>
+          </div>
+        </header>
+        <main className="px-4 sm:px-6 py-6 sm:py-10">
+          <WorkoutTimer
+            plan={activePlan}
+            dayIndex={timerDayIndex}
+            onBack={() => setStep(viewingSavedPlan ? "view-saved" : "plan")}
+            onFinish={() => setStep(viewingSavedPlan ? "view-saved" : "plan")}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-5xl items-center px-6">
+        <div className="mx-auto flex h-14 max-w-5xl items-center px-4 sm:px-6">
           <button
             onClick={() => { setStep("stats"); setPlan(null); setViewingSavedPlan(null); }}
             className="flex items-center gap-2.5 group"
@@ -96,7 +154,7 @@ const Index = () => {
             </span>
           </button>
 
-          <div className="ml-auto flex items-center gap-5">
+          <div className="ml-auto flex items-center gap-3 sm:gap-5">
             <button
               onClick={() => setStep("saved-plans")}
               className={`flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
@@ -138,6 +196,30 @@ const Index = () => {
                 </div>
               ))}
             </div>
+
+            {/* Auth */}
+            {authLoading ? null : user ? (
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-xs text-muted-foreground truncate max-w-[120px]">
+                  {user.email}
+                </span>
+                <button
+                  onClick={signOut}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate("/auth")}
+                className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign In</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -171,6 +253,7 @@ const Index = () => {
             onBack={() => setStep("equipment")}
             onRestart={() => { setStep("stats"); setPlan(null); }}
             onSave={handleSavePlan}
+            onStartTimer={startTimer}
           />
         )}
 
@@ -179,6 +262,7 @@ const Index = () => {
             plan={viewingSavedPlan.plan}
             onBack={() => setStep("saved-plans")}
             onRestart={() => { setStep("stats"); setPlan(null); setViewingSavedPlan(null); }}
+            onStartTimer={startTimer}
           />
         )}
 
@@ -186,8 +270,27 @@ const Index = () => {
           <div className="mx-auto max-w-lg space-y-6">
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold tracking-tight text-foreground">Saved Plans</h1>
-              <p className="text-sm text-muted-foreground">Your previously saved workout plans</p>
+              <p className="text-sm text-muted-foreground">
+                {user ? "Your cloud-saved workout plans" : "Sign in to save plans to the cloud"}
+              </p>
             </div>
+
+            {!user && (
+              <div className="glass-card rounded-xl p-4 flex items-center gap-3">
+                <User className="h-5 w-5 text-primary shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Save across devices</p>
+                  <p className="text-xs text-muted-foreground">Sign in to sync your plans</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => navigate("/auth")}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
+                >
+                  Sign In
+                </Button>
+              </div>
+            )}
 
             {savedPlans.length === 0 ? (
               <div className="glass-card rounded-xl p-12 text-center">
@@ -209,7 +312,7 @@ const Index = () => {
                     className="glass-card flex items-center gap-3 rounded-xl p-4 hover:border-primary/30 transition-all duration-200 group"
                   >
                     <button
-                      onClick={() => handleViewSaved(saved)}
+                      onClick={() => handleViewSaved({ plan: saved.plan, name: saved.name })}
                       className="flex-1 text-left"
                     >
                       <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-200">{saved.name}</h3>
