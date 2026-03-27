@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { WorkoutPlan, WorkoutExercise } from "@/lib/workoutTypes";
-import { ArrowLeft, Dumbbell, Lightbulb, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2, Save, Check } from "lucide-react";
+import { ArrowLeft, Dumbbell, Lightbulb, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2, Save, Check, Flame, Clock, Zap } from "lucide-react";
 
 interface Props {
   plan: WorkoutPlan;
@@ -27,8 +27,16 @@ const ExerciseDemo = ({ exercise }: { exercise: WorkoutExercise }) => {
             <span className="block text-xs text-muted-foreground mt-0.5">{exercise.notes}</span>
           )}
         </div>
-        <span className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap font-mono">{exercise.sets}×{exercise.reps}</span>
-        <span className="text-[11px] sm:text-xs text-muted-foreground/60 whitespace-nowrap hidden sm:inline">{exercise.rest}</span>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {exercise.caloriesBurned && (
+            <span className="flex items-center gap-1 text-[11px] text-orange-400 font-medium">
+              <Flame className="h-3 w-3" />
+              {exercise.caloriesBurned}
+            </span>
+          )}
+          <span className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap font-mono">{exercise.sets}×{exercise.reps}</span>
+          <span className="text-[11px] sm:text-xs text-muted-foreground/60 whitespace-nowrap hidden sm:inline">{exercise.rest}</span>
+        </div>
         <div className="text-muted-foreground/40">
           {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         </div>
@@ -106,6 +114,18 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
           {plan.title}
         </h1>
         <p className="text-sm text-muted-foreground">{plan.summary}</p>
+        {plan.weeklyCalories && (
+          <div className="flex items-center justify-center gap-4 mt-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 px-3 py-1.5">
+              <Flame className="h-3.5 w-3.5 text-orange-400" />
+              <span className="text-xs font-semibold text-orange-400">~{plan.weeklyCalories} cal/week</span>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1.5">
+              <Zap className="h-3.5 w-3.5 text-primary" />
+              <span className="text-xs font-semibold text-primary">{plan.days.length} days/week</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -121,6 +141,20 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
               <div>
                 <h3 className="text-sm font-semibold text-foreground">{day.day}</h3>
                 <p className="text-xs text-muted-foreground">{day.focus}</p>
+              </div>
+              <div className="ml-auto flex items-center gap-3">
+                {day.estimatedDuration && (
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    {day.estimatedDuration}
+                  </span>
+                )}
+                {day.totalCalories && (
+                  <span className="flex items-center gap-1 text-[11px] font-medium text-orange-400">
+                    <Flame className="h-3 w-3" />
+                    {day.totalCalories} cal
+                  </span>
+                )}
               </div>
             </div>
 

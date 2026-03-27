@@ -177,6 +177,7 @@ export interface WorkoutExercise {
   formCues: string[];
   targetMuscles: string[];
   commonMistakes: string[];
+  caloriesBurned?: number;
 }
 
 export interface WorkoutDay {
@@ -185,6 +186,8 @@ export interface WorkoutDay {
   warmup: string;
   exercises: WorkoutExercise[];
   cooldown: string;
+  totalCalories?: number;
+  estimatedDuration?: string;
 }
 
 export interface WorkoutPlan {
@@ -192,4 +195,5 @@ export interface WorkoutPlan {
   summary: string;
   days: WorkoutDay[];
   tips: string[];
+  weeklyCalories?: number;
 }
