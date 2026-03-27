@@ -97,7 +97,7 @@ const ExerciseDemo = ({ exercise }: { exercise: WorkoutExercise }) => {
   );
 };
 
-const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
+const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave, onStartTimer }: Props) => {
   const [saveName, setSaveName] = useState(plan.title);
   const [saved, setSaved] = useState(false);
 
@@ -143,7 +143,7 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
                 <h3 className="text-sm font-semibold text-foreground">{day.day}</h3>
                 <p className="text-xs text-muted-foreground">{day.focus}</p>
               </div>
-              <div className="ml-auto flex items-center gap-3">
+              <div className="ml-auto flex items-center gap-2 sm:gap-3">
                 {day.estimatedDuration && (
                   <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                     <Clock className="h-3 w-3" />
@@ -155,6 +155,15 @@ const WorkoutPlanDisplay = ({ plan, onBack, onRestart, onSave }: Props) => {
                     <Flame className="h-3 w-3" />
                     {day.totalCalories} cal
                   </span>
+                )}
+                {onStartTimer && (
+                  <button
+                    onClick={() => onStartTimer(i)}
+                    className="flex items-center gap-1 rounded-lg bg-primary/10 border border-primary/30 px-2 py-1 text-[11px] font-semibold text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <Play className="h-3 w-3" />
+                    <span className="hidden sm:inline">Start</span>
+                  </button>
                 )}
               </div>
             </div>
