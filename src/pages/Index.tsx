@@ -4,6 +4,8 @@ import UserStatsForm from "@/components/workout/UserStatsForm";
 import EquipmentSelector from "@/components/workout/EquipmentSelector";
 import WorkoutPlanDisplay from "@/components/workout/WorkoutPlanDisplay";
 import WorkoutTimer from "@/components/workout/WorkoutTimer";
+import FitnessChat from "@/components/FitnessChat";
+import StatsLogger from "@/components/StatsLogger";
 import type { UserStats, WorkoutPlan, EquipmentSelection, SavedPlan } from "@/lib/workoutTypes";
 import { EQUIPMENT_LIST, SPLIT_OPTIONS } from "@/lib/workoutTypes";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,10 +13,10 @@ import { useCloudSavedPlans } from "@/hooks/useCloudSavedPlans";
 import { useSavedPlans } from "@/hooks/useSavedPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User } from "lucide-react";
+import { Dumbbell, Loader2, BookOpen, Trash2, Clock, Zap, LogIn, LogOut, Play, User, MessageCircle, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved" | "timer";
+type Step = "stats" | "equipment" | "loading" | "plan" | "saved-plans" | "view-saved" | "timer" | "coach" | "body-stats";
 
 const Index = () => {
   const navigate = useNavigate();
